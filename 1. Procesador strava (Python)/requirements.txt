@@ -1,0 +1,8 @@
+pandas
+numpy
+ollama
+fitparse
+googletrans
+requests
+pytz
+scikit-learn

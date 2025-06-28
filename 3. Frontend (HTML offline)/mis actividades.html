@@ -1,0 +1,1021 @@
+<!DOCTYPE html> <!--Estable que el documento es HTML5-->
+<html lang="es"> <!--Estable que el idioma es el español-->
+
+<head>
+    <title>RunFlow-Mis actividades</title>
+
+    <meta charset="UTF-8"> <!--Estable la codificacion de los caracteres UTF-8-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!--Hacer página responsiva y autoescalable a la pantalla-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> <!--Biblioteca para leer archivos xlsx-->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!--Biblioteca para crear graficos interactivos-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"> <!-- Hoja de estilos de Leaflet para la visualización de mapas -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> <!-- Biblioteca Leaflet para la creación de mapas interactivos -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"><!-- Fuente de texto -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/5.4.4/css/tabulator.min.css" rel="stylesheet"><!-- Libreria de tablas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/5.4.4/js/tabulator.min.js"></script><!-- Libreria de tablas -->
+	<link rel="icon" type="image/png" href="run_logo.png">
+
+    <!--Configuracion estilo web generico-->
+    <style>
+        .container{width:90%;max-width:500px;margin:0 auto;padding:20px;}
+        ::-webkit-scrollbar{width:10px;}
+        ::-webkit-scrollbar-thumb{background:rgb(125,125,125);border-radius:10px;}
+        body{text-align:justify;font-weight:normal;font-size:16px;line-height:1.4;letter-spacing:2px;font-family:'Roboto','Open Sans',Arial,sans-serif;color:rgb(0,121,107);text-decoration:none;margin:10px;padding:10px;background:rgb(245,255,245);transition:background 0.3s ease,color 0.3s ease;}
+        body.dark-mode{background:rgb(0,15,0);color:rgb(213,224,216);}
+        .block-informes-charts{display:flex;flex-direction:column;width:90%;margin:20px auto;background:rgb(230,255,230);border-radius:8px;box-shadow:0 4px 8px black;padding:20px;transition:background 0.3s ease,box-shadow 0.3s ease;}
+        body.dark-mode .block-informes-charts{background:rgb(0,36,6);box-shadow:0 4px 8px rgba(255,255,255,0.2);}
+        .charts-container{display:flex;justify-content:space-between;gap:20px;}
+        select{display:block;width:250px;padding:10px;margin:0 auto;border-radius:8px;font-size:16px;background-color:#f0f0f0;border:2px solid #ddd;transition:all 0.3s ease;}
+        body.dark-mode select{background-color:#333;color:#ddd;border:2px solid #555;}
+        select:hover{border-color:#0d8a5a;background-color:#e0e0e0;}
+        select:focus{outline:none;border-color:#26790d;box-shadow:0 0 5px rgba(97,240,61,0.5);}
+        h1{text-align:center;font-weight:100;font-size:32px;margin-top:20px;}
+        h2{text-align:left;font-weight:100;font-size:26px;text-decoration:underline;margin:0px;}
+        h3{text-align:left;font-weight:100;font-size:18px;font-style:italic;margin-top:20px;}
+        h4{font-size:14px;}
+        h5{font-size:12px;}
+        h6{text-align:justify;font-weight:100;font-size:10px;font-style:italic;line-height:1.1;letter-spacing:0px;margin:2px;padding:0px;}
+    </style>
+
+    <!--Boton de modo claro/oscuro-->
+    <style>
+        label{display:block;margin-bottom:5px;font-weight:bold;}
+        .switch{position:fixed;bottom:20px;right:20px;display:inline-block;width:60px;height:34px;}
+        .switch input{opacity:0;width:0;height:0;}
+        .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;transition:0.4s;border-radius:34px;}
+        .slider:before{position:absolute;content:"";height:26px;width:26px;border-radius:50%;left:4px;bottom:4px;background-color:white;transition:0.4s;}
+        input:checked+.slider{background-color:#2196F3;}
+        input:checked+.slider:before{transform:translateX(26px);}
+    </style>
+    <label class="switch">
+        <input type="checkbox" id="theme-toggle">
+        <span class="slider round"></span>
+    </label>
+    <script>
+        // Selecciona el interruptor y el cuerpo del documento
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+
+        // Recupera la preferencia del tema guardada en localStorage
+        const savedTheme = localStorage.getItem('theme');
+
+        // Aplica el tema guardado si existe (modo oscuro si el usuario lo eligió previamente)
+        if (savedTheme === 'dark-mode') {
+            body.classList.add('dark-mode');
+            themeToggle.checked = true; // Asegura que el interruptor esté activado
+        }
+
+        // Maneja el cambio en el interruptor para alternar el tema
+        themeToggle.addEventListener('change', () => {
+            if (themeToggle.checked) {
+                body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark-mode'); // Guarda la preferencia para el tema oscuro
+            } else {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('theme', ''); // Elimina la preferencia para el tema oscuro
+            }
+        });
+    </script>
+
+    <!--Botones de redireccionar a las diferentes webs(codigos html)-->
+    <style>
+        .button-container-wrapper{display:flex;justify-content:center;margin-top:20px;}
+        .button-container{display:flex;justify-content:center;align-items:center;gap:15px;padding:12px 20px;border:1px solid #ccc;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);background-color:#fff;}
+        .button{padding:10px 20px;font-size:16px;color:rgb(200,255,205);background:rgb(56,133,56);border:none;border-radius:5px;cursor:pointer;text-decoration:none;}
+        .button:hover{background-color:rgb(13,53,13);}
+    </style>
+    <h1>Mis actividades</h1>
+    <div class="button-container-wrapper">
+        <div class="button-container">
+            <a href="index.html" class="button">Inicio</a>
+            <a href="mis actividades.html" class="button">Mis actividades</a>
+            <a href="informes.html" class="button">Informes</a>
+        </div>
+    </div>
+
+</head>
+
+<body>
+    <!--BLOQUE 0- Seleccionador de actividades sin buscador vía texto-->
+    <style>
+        .inputs-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .input {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+        .upload-label {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            background-color: rgb(56, 133, 56);
+            color: rgb(200, 255, 205);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            height: 36px;
+        }
+        .upload-label:hover {
+            background-color: #218838;
+        }
+    </style>
+
+    <div class="inputs-container">
+        <div class="input">
+            <label for="fileInput" class="upload-label">Subir Archivo desde PC</label>
+            <input type="file" id="fileInput" accept=".xlsx" style="display: none;">
+        </div>
+    </div>
+
+    <script>
+        // Evento para procesar el archivo subido manualmente
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const data = new Uint8Array(event.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+
+                const jsonInstantData = XLSX.utils.sheet_to_json(workbook.Sheets['Instant'], { header: 1 });
+                const jsonTimeLapsData = XLSX.utils.sheet_to_json(workbook.Sheets['Laps'], { header: 1 });
+                const jsonGlobalData = XLSX.utils.sheet_to_json(workbook.Sheets['Summary'], { header: 1 });
+
+                // Funciones de procesamiento de datos
+                generateActivityDetails(jsonGlobalData);
+                generateshortsummaryactivtytable(jsonGlobalData);
+                generatelongSummaryactivtyTable(jsonGlobalData);
+                generate_summary_analizarIA(jsonGlobalData);
+                generatemap(jsonInstantData);
+                generateMinLineChart(jsonTimeLapsData);
+                generateMinTable(jsonTimeLapsData);
+                generateZoneCharts(jsonGlobalData);
+                generateRatiosLineCharts(jsonGlobalData);
+                generate_zones_analizaria(jsonGlobalData);
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    </script>
+
+
+
+    <!--BLOQUE I- Portada inicial--> 
+    <style>
+        #map{flex:6;max-width:860px;height:400px;justify-content:left;margin:10px auto;border:1px solid #ddd;border-radius:8px;box-shadow:0 4px 8px rgba(0,0,0,0.1);background-color:white;}
+        #longsummaryactivitytable{flex:4;width:100%;margin:10px;border-collapse:collapse;}
+    </style>
+    <div class="block-informes-charts">
+        <h2>Resumen</h2>
+        <h6>-</h6>         
+        <table id="shortsummaryactivtytable">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+        <div class="charts-container">
+        	<div id="map"></div>
+            <table id="longsummaryactivitytable">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+        </div>
+        <h6>FTP, peso y marcas del dia:</h6> 
+        <div class="chart-analizarIA">
+            <h3>AnalizarIA</h3>
+            <p></p>
+        </div>
+    </div>
+    <script>
+
+        function generateActivityDetails(json_global_data) {
+            // Extraer valores necesarios del JSON
+            const activityType = json_global_data[1][0];
+            const city = json_global_data[1][1];
+            const date = json_global_data[1][2]; // Formato: DD/MM/YYYY
+            const startTime = json_global_data[1][3];
+            const endTime = json_global_data[1][4];
+            const distance = json_global_data[1][7].toFixed(1);
+
+            const ftpBpm = json_global_data[1][32].toFixed(0);
+            const ftpPace = json_global_data[1][33].toFixed(0);
+            const ftpPower = json_global_data[1][34].toFixed(0);
+            const weight = json_global_data[1][37].toFixed(2);
+            const km3_daily_best = json_global_data[1][88] ? json_global_data[1][88].toFixed(2) : '0.00';
+            const km5_daily_best = json_global_data[1][89] ? json_global_data[1][89].toFixed(2) : '0.00';
+            const km10_daily_best = json_global_data[1][90] ? json_global_data[1][90].toFixed(2) : '0.00';
+            const km21_daily_best = json_global_data[1][91] ? json_global_data[1][91].toFixed(2) : '0.00';
+            const km42_daily_best = json_global_data[1][92] ? json_global_data[1][92].toFixed(2) : '0.00';
+
+
+
+            // Convertir la fecha a un formato más legible (por ejemplo, "12 de Agosto de 2024")
+            const dateParts = date.split("/");
+            const months = [
+                "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+            ];
+            const formattedDate = `${parseInt(dateParts[0])} de ${months[parseInt(dateParts[1]) - 1]} de ${dateParts[2]}`;
+
+            // Función auxiliar para construir el sufijo "desde ciudad" solo si hay ciudad
+            const citySuffix = city && city.trim() !== "" ? ` desde ${city}` : "";
+
+            // Determinar la descripción según el tipo de actividad
+            let activityDescription;
+            if (activityType === "Road") {
+                activityDescription = `Carrera de asfalto de ${distance} km${citySuffix}`;
+            } else if (activityType === "Trail") {
+                activityDescription = `Carrera de montaña de ${distance} km${citySuffix}`;
+            } else {
+                activityDescription = `Actividad de ${activityType}${citySuffix}`;
+            }
+
+            // Asignar el título dinámicamente
+            const activityTitle = document.querySelector(".block-informes-charts h2");
+            activityTitle.textContent = activityDescription;
+
+            const activityDetails = document.querySelector(".block-informes-charts h6:first-of-type");
+            activityDetails.textContent = `El día ${formattedDate} de ${startTime} a ${endTime}`;
+
+            const ftpDetails = document.querySelector(".block-informes-charts h6:last-of-type");
+            ftpDetails.innerHTML = ` Marcas del día: 3km: ${convertMinToMinSec(km3_daily_best)}, 5km: ${convertMinToMinSec(km5_daily_best)}, 
+            10km: ${convertMinToMinSec(km10_daily_best)}, 21.1km: ${convertMinToHourMinSec(km21_daily_best)}, 42.2km: ${convertMinToHourMinSec(km42_daily_best)}. 
+            --- FTP_bpm: ${ftpBpm}, FTP_rap: ${ftpPace}, FTP_potencia: ${ftpPower}, Peso: ${weight}`;
+
+        }
+    
+        function generateshortsummaryactivtytable(json_global_data) { 
+            // Obtener los valores
+            const total_time = json_global_data[1][6].toFixed(2);
+            const total_distance = json_global_data[1][7].toFixed(2);
+            const total_accumulated_positive_level = json_global_data[1][9].toFixed(0);
+            const moving_average_pace = json_global_data[1][11].toFixed(2);
+            const average_bpm = json_global_data[1][15].toFixed(0);
+
+            // Obtener la referencia a la tabla
+            const table = document.getElementById("shortsummaryactivtytable");
+            const thead = table.querySelector('thead');
+            const tbody = table.querySelector('tbody');
+
+            // Limpiar el contenido del cuerpo de la tabla
+            tbody.innerHTML = '';
+
+            // Crear los encabezados si no existen
+            if (!thead.querySelector('tr')) {
+                thead.innerHTML = ''; // Limpiar cualquier contenido previo del thead
+                const headerRow = document.createElement('tr');
+
+                // Crear y agregar las celdas de los encabezados
+                const headers = ["Tiempo transcurrido (min)", "Distancia total (km)", "Desnivel acumulado (m)", "Ritmo en movimiento (min/km)", "Pulsaciones medias (bpm)"];
+                headers.forEach(headerText => {
+                    const th = document.createElement('th');
+                    th.textContent = headerText;
+                    headerRow.appendChild(th);
+                });
+
+                thead.appendChild(headerRow); // Añadir la fila de encabezados al thead
+            }
+
+            // Crear una nueva fila de datos
+            const row = tbody.insertRow();
+
+            // Insertar celdas con los valores en la fila
+            row.insertCell(0).textContent = convertMinToHourMinSec(total_time);
+            row.insertCell(1).textContent = total_distance;
+            row.insertCell(2).textContent = total_accumulated_positive_level;
+            row.insertCell(3).textContent = convertMinToMinSec(moving_average_pace);
+            row.insertCell(4).textContent = average_bpm;
+        }
+
+        function generatelongSummaryactivtyTable(json_summary_data) {
+            // Obtener los valores de cada parámetro
+            const total_time = json_summary_data[1][6].toFixed(2);
+            const total_distance = json_summary_data[1][7].toFixed(2);
+            const equivalent_distance = json_summary_data[1][8].toFixed(2);
+            const positive_ascent = json_summary_data[1][9].toFixed(2);
+            const negative_ascent = json_summary_data[1][10].toFixed(0);
+            const rap_pace = json_summary_data[1][13].toFixed(2);
+            const moving_pace = json_summary_data[1][11].toFixed(2);
+            const real_pace = json_summary_data[1][12].toFixed(2);
+            const pace_deviation_percentage = json_summary_data[1][14].toFixed(2);
+            const pace_deviation = real_pace * (pace_deviation_percentage / 100);
+            const bpm_mean = json_summary_data[1][15].toFixed(0);
+            const bpm_max = json_summary_data[1][16].toFixed(0);
+            const bpm_deviation_percentage = json_summary_data[1][17].toFixed(0);
+            const bpm_deviation = (bpm_mean * (bpm_deviation_percentage / 100)).toFixed(0);
+            const bpmxrap_mean = json_summary_data[1][18].toFixed(0);
+            const cadence = json_summary_data[1][19].toFixed(0);
+            const stride = json_summary_data[1][20].toFixed(2);
+            const energy = json_summary_data[1][21].toFixed(0);
+            const power = json_summary_data[1][22].toFixed(0);
+            const stand_power = json_summary_data[1][23].toFixed(0);
+            const training_load = json_summary_data[1][24].toFixed(0);
+            const vdots = json_summary_data[1][25].toFixed(2);
+            const PI = json_summary_data[1][26].toFixed(2);
+            const intensity_factor = json_summary_data[1][27].toFixed(2);
+            const vam = json_summary_data[1][28].toFixed(2);
+            const energy_per_km = json_summary_data[1][29].toFixed(2);
+
+            // Definir los encabezados y los valores
+            const headers = [
+                "Tiempo(min)", "Distancia(km)", "Dis. Equivalente(km)",
+                "Desnivel +(m)", "Desnivel -(m)", "RAP(min/km)",
+                "Ritmo movimiento(min/km)", "Ritmo real(min/km)", "Desviacion (min/km)",
+                "BPM medio(bpm)", "BPM max(bpm)", "Desviacion (bpm)",
+                "Pulsaciones por 100m", "Cadencia(ppm)", "Zancada(m)",
+                "Energia total(kcal)", "Potencia(W)", "Potencia estandarizada(W)",
+                "Carga del entrenamiento(TSS)", "VDOT(ud)", "PI(%)",
+                "IF(ud)", "VAM(W/kg)", "Energia por Km(kcal/km)"
+            ];
+
+            const values = [
+                convertMinToHourMinSec(total_time), total_distance, equivalent_distance,
+                positive_ascent, negative_ascent, convertMinToMinSec(rap_pace),
+                convertMinToMinSec(moving_pace), convertMinToMinSec(real_pace), convertMinToMinSec(pace_deviation),
+                bpm_mean, bpm_max, bpm_deviation,
+                bpmxrap_mean/10, cadence, stride,
+                energy, power, stand_power,
+                training_load, vdots, PI,
+                intensity_factor, vam, energy_per_km
+            ];
+
+            // Obtener la referencia a la tabla
+            const table = document.getElementById("longsummaryactivitytable");
+            const thead = table.querySelector('thead');
+            const tbody = table.querySelector('tbody');
+
+            // Limpiar el contenido del cuerpo de la tabla
+            tbody.innerHTML = '';
+
+            // Eliminar la primera fila de encabezado (duplicada)
+            if (thead.querySelector('tr')) {
+                thead.querySelector('tr').remove();
+            }
+
+            // Crear una fila con los encabezados (3 columnas)
+            const headerRow = document.createElement('tr');
+            for (let i = 0; i < 3; i++) {
+                const th = document.createElement('th');
+                th.textContent = headers[i];
+                headerRow.appendChild(th);
+            }
+            thead.appendChild(headerRow); // Añadir la fila de encabezados a la tabla
+
+            // Crear las filas intercaladas de encabezados y valores
+            for (let i = 0; i < 9; i++) {
+                // Fila de valores
+                const valueRow = document.createElement('tr');
+                for (let j = 0; j < 3; j++) {
+                    const td = document.createElement('td');
+                    const index = i * 3 + j;
+                    td.textContent = values[index] || '';
+                    valueRow.appendChild(td);
+                }
+                tbody.appendChild(valueRow);
+
+                // Fila de encabezados
+                const headerRow2 = document.createElement('tr');
+                for (let j = 0; j < 3; j++) {
+                    const th = document.createElement('th');
+                    const index = i * 3 + j + 3;
+                    th.textContent = headers[index] || '';
+                    headerRow2.appendChild(th);
+                }
+                tbody.appendChild(headerRow2); // Añadir la fila de encabezados
+            }
+        }
+      
+        let mapInstance; // Variable global para almacenar el mapa
+        function generatemap(json_instant_data) { 
+            // Si existe un mapa previo, eliminarlo
+            if (mapInstance) {
+                mapInstance.remove();
+            }
+
+            // Extraer los valores
+            const long_coord = json_instant_data.slice(1).map(row => row[2]);
+            const lat_coord = json_instant_data.slice(1).map(row => row[3]);
+            const coordinates = long_coord.map((lon, index) => [lat_coord[index], lon]);
+
+            // Crear un nuevo mapa centrado en las primeras coordenadas
+            mapInstance = L.map('map').setView(coordinates[0], 6);
+            
+            // Añadir una capa base (OpenStreetMap) 
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(mapInstance);
+
+            // Traza el recorrido
+            L.polyline(coordinates, { color: 'blue' }).addTo(mapInstance);
+
+            // Ajusta el zoom para que el recorrido sea visible
+            mapInstance.fitBounds(L.polyline(coordinates).getBounds());
+        }
+      	
+        function generate_summary_analizarIA(json_global_data) {
+            // Extraer el resumen de la actividad desde json_global_data[1][93]
+            const activitySummary = json_global_data[1][93];
+
+            // Acceder al contenedor donde se mostrará el resumen
+            const activitySummaryDiv = document.querySelector(".chart-analizarIA");
+
+            // Actualizar el título
+            const activityTitle = activitySummaryDiv.querySelector("h3");
+            activityTitle.textContent = "AnalizarIA";
+
+            // Actualizar el contenido del párrafo con el resumen de la actividad
+            const activityDetails = activitySummaryDiv.querySelector("p:nth-of-type(1)");
+            activityDetails.textContent = activitySummary;
+        }
+  	
+    </script>
+
+
+
+    <!--BLOQUE II- Parciales--> 
+    <style>
+        .chart-min-table{flex:6;text-align:center;background-color:white;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,0.1);padding:20px;width:100%;border-collapse:collapse;max-height:450px;overflow-y:auto;}
+        .chart-min-table th,.chart-min-table td{padding:5px;text-align:right;border:1px solid #ddd;}
+        .chart-min-table th{background-color:#f2f2f2;}
+        .chart-min-line{flex:6;text-align:center;background-color:white;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.1);padding:20px;}
+        .chart-analizarIA{flex:4;text-align:justify;background-color:white;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.1);padding:20px;}
+        body.dark-mode .chart-min-table,body.dark-mode .chart-min-line,body.dark-mode .chart-analizarIA{background-color:#2c2c2c;color:#ddd;box-shadow:0 4px 15px rgba(255,255,255,0.2);}
+    </style>
+    <div class="block-informes-charts">
+        <h2>Parciales</h2>
+        <br>
+        <div class="charts-container">
+            <div class="chart-min-line">
+                <h3>Gráfica por minutos</h3>
+                <canvas id="min_line_chart"></canvas>
+            </div> 
+            <div class="chart-min-table">
+                <h3>Tabla</h3>
+                
+            </div> 
+        </div>
+        <br>
+        <select id="dataRangeSelector-min-laps">
+            <option value="min0_lap">Rango: 10 sec</option>
+            <option value="min1_lap">Rango: 1 min</option>
+            <option value="min3_lap">Rango: 3 min</option>
+            <option value="min5_lap">Rango: 5 min</option>
+            <option value="min10_lap">Rango: 10 min</option>
+        </select>
+    </div>
+    <script>
+
+        function generateMinLineChart(json_time_laps_data) {  
+            // Obtener el selector
+            const dataRangeSelector = document.getElementById("dataRangeSelector-min-laps");
+
+            // Función para actualizar la gráfica según el valor seleccionado
+            function updateChartData() {
+                const selectedLapRange = dataRangeSelector.value; // Obtener el valor seleccionado
+
+                // Filtrar los datos según el valor seleccionado
+                const filteredData = json_time_laps_data.filter(row => row[14] === selectedLapRange);
+
+                // Generar los datos para la gráfica con los datos filtrados
+                const time_min_lap = filteredData.map(row => row[0]);
+                const distancia_min_lap = filteredData.map(row => row[2]);
+                const desnivel_min_lap = filteredData.map(row => row[3]);
+                const pulsaciones_min_lap = filteredData.map(row => row[6]);
+                const ritmo_min_lap = filteredData.map(row => row[7]);
+                const rap_min_lap = filteredData.map(row => row[9]);
+                const bpmxrap_min_lap = filteredData.map(row => Number(row[10]) / 10);
+                const cadencia_min_lap = filteredData.map(row => row[11]);
+                const zancada_min_lap = filteredData.map(row => row[12]);
+                const potencia_min_lap = filteredData.map(row => row[13]);
+
+                const lineChartData = { 
+                    labels: time_min_lap,
+                    datasets: [
+                        { label: 'Pulsaciones (bpm)', data: pulsaciones_min_lap, yAxisID: 'y_pulsaciones', borderColor: 'red', hidden: false },
+                        { label: 'Ritmo (min)', data: ritmo_min_lap, yAxisID: 'y_ritmos', borderColor: 'blue', hidden: false },
+                        { label: 'Potencia (W)', data: potencia_min_lap, yAxisID: 'y_otros', borderColor: 'turquoise', hidden: true },
+                        { label: 'RAP (min/km)', data: rap_min_lap, yAxisID: 'y_otros', borderColor: 'darkblue', hidden: true },
+                        { label: 'Puls por 100m', data: bpmxrap_min_lap, yAxisID: 'y_otros', borderColor: 'orange', hidden: true },
+                        { label: 'Cadencia (ppm)', data: cadencia_min_lap, yAxisID: 'y_otros', borderColor: 'lime', hidden: true },
+                        { label: 'Zancada (m)', data: zancada_min_lap, yAxisID: 'y_otros', borderColor: 'yellow', hidden: true },
+                        { label: 'Distancia (m)', data: distancia_min_lap, yAxisID: 'y_otros', borderColor: 'black', hidden: true },
+                        { label: 'Desnivel (m)', data: desnivel_min_lap, yAxisID: 'y_otros', borderColor: 'darkgray', hidden: true }
+                    ]
+                };
+
+                const lineChartOptions = {
+                    scales: { 
+                        x: {
+                            title: { display: true, text: 'Nº vuelta' },
+                            ticks: { callback: function(value) { return Math.round(value) }}
+                        },
+                        y_pulsaciones: {
+                            title: { display: false, text: 'Pulsaciones (bpm)' },
+                            position: 'left',
+                            reverse: false,
+                            display: true,
+                            grid: { display: true },
+                            min: 100,
+                            max: 210
+                        },
+                        y_ritmos: {
+                            title: { display: true, text: 'Pulsaciones (bpm) y Ritmo (min/km)' },
+                            position: 'left',
+                            reverse: true,
+                            display: true,
+                            grid: { display: false },
+                            min: 2.8,
+                            max: 12
+                        },
+                        y_otros: {
+                            title: { display: true, text: 'Otros parámetros' },
+                            position: 'right',
+                            reverse: false,
+                            display: true,
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                position: 'bottom',
+                                fontColor: 'blue',
+                                fontSize: 10,
+                                fontStyle: 'italic',
+                                padding: 10,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            callbacks: { 
+                                title: function (tooltipItems) {
+                                    return 'Tiempo: ' + Number(tooltipItems[0].label).toFixed(0) + ' min';
+                                },
+                                label: function (tooltipItem) {
+                                    const distancia_acumulada = tooltipItem.chart.data.datasets[7].data.reduce((acumulado, actual, index) => {
+                                        if (index === 0) {
+                                            acumulado.push(actual);
+                                        } else {
+                                            acumulado.push(acumulado[index - 1] + actual);
+                                        }
+                                        return acumulado;
+                                    }, []);     
+                                    return [
+                                        'Distancia acumulada: ' + distancia_acumulada[tooltipItem.dataIndex].toFixed(0) + ' m',
+                                        'Pulsaciones: ' + tooltipItem.chart.data.datasets[0].data[tooltipItem.dataIndex].toFixed(0) + ' bpm',
+                                        'Ritmo: ' + convertMinToMinSec(tooltipItem.chart.data.datasets[1].data[tooltipItem.dataIndex]) + ' min/km', // Aplicar convertMinToMinSec aquí
+                                        'Potencia: ' + tooltipItem.chart.data.datasets[2].data[tooltipItem.dataIndex].toFixed(0) + ' W',
+                                        'RAP: ' + convertMinToMinSec(tooltipItem.chart.data.datasets[3].data[tooltipItem.dataIndex]) + ' min/km', // Aplicar convertMinToMinSec aquí
+                                        'Puls por 100m: ' + tooltipItem.chart.data.datasets[4].data[tooltipItem.dataIndex].toFixed(0),
+                                        'Cadencia: ' + tooltipItem.chart.data.datasets[5].data[tooltipItem.dataIndex].toFixed(0) + ' ppm',
+                                        'Zancada: ' + tooltipItem.chart.data.datasets[6].data[tooltipItem.dataIndex].toFixed(2) + ' m',
+                                        'Distancia: ' + tooltipItem.chart.data.datasets[7].data[tooltipItem.dataIndex].toFixed(0) + ' m',
+                                        'Desnivel: ' + tooltipItem.chart.data.datasets[8].data[tooltipItem.dataIndex].toFixed(2) + ' m'
+                                    ];
+
+                                }
+                            }
+                        }
+                    },
+                    borderWidth: 1,
+                    responsive: true,
+                    maintainAspectRatio: true
+                };
+
+                // Recreate the chart with the updated data
+                recreate_chartid('min_line_chart');
+                new Chart(document.getElementById('min_line_chart').getContext('2d'), {
+                    type: 'line',
+                    data: lineChartData,
+                    options: lineChartOptions
+                });
+            }
+
+            // Llamar a la función al iniciar la página
+            updateChartData();
+
+            // Agregar un listener para cuando se cambie la selección
+            dataRangeSelector.addEventListener("change", updateChartData);
+        }
+            
+        function generateMinTable(json_time_laps_data) {
+            const dataRangeSelector = document.getElementById("dataRangeSelector-min-laps");
+
+            function updateTableData() {
+                const selectedLapRange = dataRangeSelector.value;
+                const filteredData = json_time_laps_data.filter(row => row[14] === selectedLapRange);
+
+                const tableContainer = document.querySelector('.chart-min-table');
+                tableContainer.innerHTML = '';
+
+                const table = document.createElement('table');
+                const thead = document.createElement('thead');
+                const headerRow = document.createElement('tr');
+                const headers = ['Tiempo inicio (min)', 'Distancia (m)', 'Desnivel (m)', 'Pulsaciones (bpm)', 'Ritmo (min/km)', 'RAP (min/km)', 'Pulsaciones por 100m', 'Cadencia (ppm)', 'Zancada (m)', 'Potencia (W)'];
+
+                headers.forEach(headerText => {
+                    const th = document.createElement('th');
+                    th.textContent = headerText;
+                    headerRow.appendChild(th);
+                });
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
+
+                const tbody = document.createElement('tbody');
+
+                filteredData.forEach(row => {
+                    const tr = document.createElement('tr');
+                    const data = [
+                        row[0],  // Tiempo (min)
+                        row[2],  // Distancia (m)
+                        row[3],  // Desnivel (m)
+                        row[6],  // Pulsaciones (bpm)
+                        row[7],  // Ritmo (min/km)
+                        row[9],  // RAP (min/km)
+                        row[10]/10, // Pulsaciones por 100m
+                        row[11], // Cadencia (ppm)
+                        row[12], // Zancada (m)
+                        row[13]  // Potencia (W)
+                    ];
+
+                    data.forEach((cellData, index) => {
+                        const td = document.createElement('td');
+
+                        if ( index === 3 || index === 6 || index === 7 || index === 9) {
+                            // Tiempo, Pulsaciones, bpmxrap, Cadencia y Potencia: 0 decimales
+                            td.textContent = Number(cellData).toFixed(0);
+                        } else if (index === 0 || index === 4 || index === 5) {
+                            // Ritmo y RAP: aplicar convertMinToMinSec
+                            td.textContent = convertMinToMinSec(cellData);
+                        } else {
+                            // Para los demás (Distancia, Desnivel, Zancada): 2 decimales
+                            td.textContent = Number(cellData).toFixed(2);
+                        }
+
+                        tr.appendChild(td);
+                    });
+
+                    tbody.appendChild(tr);
+                });
+
+                table.appendChild(tbody);
+                tableContainer.appendChild(table);
+            }
+
+            updateTableData();
+
+            dataRangeSelector.addEventListener("change", updateTableData);
+        }
+
+    </script>
+
+
+
+    <!--BLOQUE III- Otras graficas--> 
+    <style>
+        .chart-especific-zone,.chart-ratios{background-color:white;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.1);padding:20px;margin-left:auto;margin-right:auto;display:block;}
+        .chart-especific-zone{flex:2.5;}
+        .chart-ratios{flex:5.4;}
+        .chart-otrasIA{flex:5;text-align:justify;background-color:white;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.1);padding:20px;}
+        body.dark-mode .chart-especific-zone,body.dark-mode .chart-ratios,body.dark-mode .chart-otrasIA{background-color:#2c2c2c;color:#ddd;box-shadow:0 4px 15px rgba(255,255,255,0.2);}
+    </style>
+    <div class="block-informes-charts">
+        <h2>Otras gráficas</h2>
+        <br>
+        <div class="charts-container">
+            <div class="chart-especific-zone">
+                <h3>Zonas por pulsaciones</h3>
+                <canvas id="bpm_zones_chart"></canvas>
+            </div>
+            <div class="chart-especific-zone">
+                <h3>Zonas por ritmo</h3>
+                <canvas id="pace_zones_chart"></canvas>
+            </div>
+            <div class="chart-ratios">
+                <h3>Relacion rangos pulsaciones - ritmo/potencia</h3>
+                <canvas id="ratios_line_chart"></canvas>
+            </div>
+            
+            
+        </div>
+        <br>
+        <div class="chart-otrasIA">
+            <h3>Resumen</h3>
+        </div>
+    </div>
+    <script>
+        
+        function generateZoneCharts(json_global_data) {     // Generar gráfico de zonas del entrenamiento
+            const num_zones = [1, 2, 3, 4, 5];
+            const time_zones_bpm = json_global_data[1].slice(38, 43).map(val => val / 60); // Convertir a minutos
+            const time_zones_pace = json_global_data[1].slice(43, 48).map(val => val / 60); // Convertir a minutos
+
+
+            // Límites de BPM y Pace (solo 4 valores, por lo que ajustamos los límites)
+            const limit_zones_bpm = json_global_data[1].slice(48, 52);
+            const limit_zones_pace = json_global_data[1].slice(52, 56);
+
+            // Calcular los totales
+            const total_time_bpm = time_zones_bpm.reduce((acc, val) => acc + val, 0);
+            const total_time_pace = time_zones_pace.reduce((acc, val) => acc + val, 0);
+
+            // Calcular porcentajes
+            const percentage_zones_bpm = time_zones_bpm.map(val => ((val / total_time_bpm) * 100).toFixed(2));
+            const percentage_zones_pace = time_zones_pace.map(val => ((val / total_time_pace) * 100).toFixed(2));
+
+            // Colores para las gráficas
+            const colors_zones = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'];
+
+            // Configuración genérica para las gráficas
+            const chartOptions = {
+                plugins: {
+                    legend: {
+                        labels: {
+                            position: 'bottom', // Poner la leyenda abajo
+                            fontColor: 'blue',    // Color de la fuente
+                            fontSize: 10,         // Tamaño de la fuente
+                            fontStyle: 'italic', // Estilo de la fuente
+                            padding: 10,          // Espaciado entre elementos de la leyenda
+                            usePointStyle: true // Cambiar los cuadros a círculos
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (tooltipItem) {
+                                const index_zones = tooltipItem.dataIndex;
+                                const time_zones = tooltipItem.raw;
+                                let percentage_zones = 0;
+
+                                // Si es 'Tiempo en BPM', convertimos el tiempo a min' sec"
+                                if (tooltipItem.dataset.label === 'Tiempo en BPM') {
+                                    percentage_zones = percentage_zones_bpm[index_zones];
+                                    const timeFormatted = convertMinToHourMinSec(time_zones);
+                                    return `${timeFormatted} (${percentage_zones}%)`;
+                                }
+                                // Si es 'Tiempo en Pace', convertimos el tiempo a min' sec"
+                                else if (tooltipItem.dataset.label === 'Tiempo en Pace') {
+                                    percentage_zones = percentage_zones_pace[index_zones];
+                                    const timeFormatted = convertMinToHourMinSec(time_zones);
+                                    return `${timeFormatted} (${percentage_zones}%)`;
+                                }
+                            }
+                        }
+                    }
+                },
+                responsive: true,
+                maintainAspectRatio: true
+            };
+
+            // Crear la gráfica para BPM
+            const bpmChartData = {
+                labels: num_zones.map((zone, index) => {
+                    let label = '';
+                    if (zone === 1) {
+                        label = `Zona 1 (<${(limit_zones_bpm[0] - 1).toFixed(0)} bpm)`; // Para Zona 1, valor menor que el primer límite
+                    } else if (zone === 2) {
+                        label = `Zona 2 (${limit_zones_bpm[0].toFixed(0)} - ${(limit_zones_bpm[1] - 1).toFixed(0)} bpm)`; // Zona 2
+                    } else if (zone === 3) {
+                        label = `Zona 3 (${limit_zones_bpm[1].toFixed(0)} - ${(limit_zones_bpm[2] - 1).toFixed(0)} bpm)`; // Zona 3
+                    } else if (zone === 4) {
+                        label = `Zona 4 (${limit_zones_bpm[2].toFixed(0)} - ${(limit_zones_bpm[3] - 1).toFixed(0)} bpm)`; // Zona 4
+                    } else if (zone === 5) {
+                        label = `Zona 5 (>=${limit_zones_bpm[3].toFixed(0)} bpm)`; // Zona 5
+                    }
+                    return label;
+                }),
+                datasets: [{
+                    data: time_zones_bpm,
+                    backgroundColor: colors_zones,
+                    label: 'Tiempo en BPM'
+                }]
+            };
+
+            // Crear la gráfica para Pace
+            const paceChartData = {
+                labels: num_zones.map((zone, index) => {
+                    let label = '';
+                    if (zone === 1) {
+                        label = `Zona 1 (<${convertMinToMinSec((limit_zones_pace[0] - 0.01))})`; // Para Zona 1
+                    } else if (zone === 2) {
+                        label = `Zona 2 (${convertMinToMinSec(limit_zones_pace[0])} - ${convertMinToMinSec((limit_zones_pace[1] - 0.01))})`; // Zona 2
+                    } else if (zone === 3) {
+                        label = `Zona 3 (${convertMinToMinSec(limit_zones_pace[1])} - ${convertMinToMinSec((limit_zones_pace[2] - 0.01))})`; // Zona 3
+                    } else if (zone === 4) {
+                        label = `Zona 4 (${convertMinToMinSec(limit_zones_pace[2])} - ${convertMinToMinSec((limit_zones_pace[3] - 0.01))})`; // Zona 4
+                    } else if (zone === 5) {
+                        label = `Zona 5 (>=${convertMinToMinSec(limit_zones_pace[3])})`; // Zona 5
+                    }
+                    return label;
+                }),
+                datasets: [{
+                    data: time_zones_pace,
+                    backgroundColor: colors_zones,
+                    label: 'Tiempo en Pace'
+                }]
+            };
+
+            recreate_chartid('bpm_zones_chart');
+            recreate_chartid('pace_zones_chart');
+            new Chart(document.getElementById('bpm_zones_chart').getContext('2d'), {
+                type: 'pie',
+                data: bpmChartData,
+                options: chartOptions
+            });
+            new Chart(document.getElementById('pace_zones_chart').getContext('2d'), {
+                type: 'pie',
+                data: paceChartData,
+                options: chartOptions
+            });
+        }
+
+        function generateRatiosLineCharts(json_global_data) {
+            const bpm_ratios = [
+                "0-120", "120-130", "130-140", "140-148", "148-153", "153-158", "158-163",
+                "163-168", "168-173", "173-178", "178-183", "183-188", "188-193", "193-198",
+                "198-203", "203-220"
+            ];
+            const activityType = json_global_data[1][0];
+            let pace_ratios = json_global_data[1].slice(56, 71).map(Number);
+            let power_ratios = json_global_data[1].slice(72, 87).map(Number);
+
+            const maxY = activityType === 'Road' ? 10 : activityType === 'Trail' ? 20 : 12; // Valor por defecto 12
+            
+            const data = {
+                labels: bpm_ratios,
+                datasets: [
+                    {
+                        label: 'Ratio Pace BPM',
+                        data: pace_ratios,
+                        borderColor: '#36A2EB',
+                        backgroundColor: 'rgba(54,162,235,0.2)',
+                        fill: true,
+                        yAxisID: 'yl',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Ratio Power BPM',
+                        data: power_ratios,
+                        borderColor: '#FF6384',
+                        backgroundColor: 'rgba(255,99,132,0.2)',
+                        fill: true,
+                        yAxisID: 'yr',
+                        tension: 0.1,
+                        hidden: true
+                    }
+                ]
+            };
+
+            const options = {
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            font: { size: 10, style: 'italic' },
+                            color: 'blue',
+                            padding: 10
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const { datasetIndex, raw } = context;
+                                if (datasetIndex === 0) {
+                                    // Aplica tu función de conversión a minutos:segundos
+                                    return convertMinToMinSec(raw);
+                                } else {
+                                    return raw.toFixed(0);
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    yl: {
+                        type: 'linear',
+                        position: 'left',
+                        title: { display: true, text: 'Ratio Ritmo - BPM' },
+                        min: 0,
+                        max: maxY,
+                        clamp: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    },
+                    yr: {
+                        type: 'linear',
+                        position: 'right',
+                        title: { display: true, text: 'Ratio Potencia - BPM' }
+                    }
+                },
+                responsive: true,
+                maintainAspectRatio: true
+            };
+
+            recreate_chartid('ratios_line_chart');
+            new Chart(
+            document.getElementById('ratios_line_chart').getContext('2d'),
+            { type: 'line', data, options }
+            );
+        }
+
+        function generate_zones_analizaria(json_global_data) {
+            // Extraer datos de zonas
+            const num_zones = [1, 2, 3, 4, 5];
+            const time_zones_bpm = json_global_data[1].slice(38, 43);
+            const time_zones_pace = json_global_data[1].slice(43, 48);
+      
+            function getTopZones(zonesArray) {
+                // Devuelve los índices de los dos valores más altos
+                const sortedIndices = zonesArray
+                .map((value, index) => ({ value, index }))
+                .sort((a, b) => b.value - a.value)
+                .slice(0, 2)
+                .map(item => item.index);
+
+                return sortedIndices;
+            }
+
+            // Identificar las zonas más elevadas
+            const max_bpm_zones = getTopZones(time_zones_bpm);
+            const max_pace_zones = getTopZones(time_zones_pace);
+
+            // Generar el análisis
+            let analysis = `Tus zonas de entrenamiento según tus pulsaciones fueron zona ${num_zones[max_bpm_zones[0]]} principalmente, seguida de la zona ${num_zones[max_bpm_zones[1]]}, y si nos basamos en el ritmo, la zona ${num_zones[max_pace_zones[0]]} fue la primordial seguida de la zona ${num_zones[max_pace_zones[1]]}.`;
+
+            // Generar la recomendación
+            if (max_bpm_zones[0] === max_pace_zones[0] && max_bpm_zones[1] === max_pace_zones[1]) {
+                analysis += " Muy bien, tus zonas de pulsaciones y de ritmo son mayoritariamente las mismas, lo que indica un equilibrio entre esfuerzo cardiovascular y ritmo.";
+            } else if ((max_bpm_zones[0] <= 2 && max_pace_zones[0] <= 2) || (max_bpm_zones[1] <= 2 && max_pace_zones[1] <= 2)) {
+                // Si alguna de las zonas principales o secundarias de pulsaciones o ritmo es 1 o 2
+                analysis += " Parece que hubo un desajuste entre tus zonas de ritmo y pulsaciones. Podría ser un mal entrenamiento.";
+            } else if (max_bpm_zones[0] > max_pace_zones[0] || max_bpm_zones[1] > max_pace_zones[1]) {
+                // Si las pulsaciones están en zonas más altas que el ritmo
+                analysis += " Parece que tu corazón estaba en zonas de entrenamiento más elevadas que las que tus ritmos de correr pueden soportar. Considera evaluar tu fatiga o ajustar tus entrenamientos.";
+            } else {
+                // Si las pulsaciones son más bajas que el ritmo
+                analysis += " Perfecto, tus pulsaciones fueron más bajas de lo esperado para las zonas de ritmos de entrenamiento realizado. Esto puede indicar una buena eficiencia cardiovascular.";
+            }
+
+            // Añadir recomendaciones adicionales si es necesario
+            if (time_zones_bpm[max_bpm_zones[0]] > time_zones_pace[max_pace_zones[0]] * 1.2) {
+                analysis += " Sin embargo, hay una discrepancia significativa entre las zonas, lo que podría sugerir fatiga o un esfuerzo mal calibrado.";
+            }
+
+
+            // Inyectar el análisis al DOM
+            const analysisContainer = document.querySelector(".chart-otrasIA");
+            analysisContainer.innerHTML = `
+            <h3>AnalizarIA</h3>
+            <p>${analysis}</p>
+            `;
+        }
+  
+    </script>
+
+
+
+    <!--Otras functions para que funcione el codigo-->
+    <script>
+
+        function  convertMinToMinSec(pace) {
+            const minutes = Math.floor(pace); // Parte entera = minutos
+            const seconds = Math.round((pace - minutes) * 60); // Parte decimal = segundos
+            return `${minutes}'${seconds < 10 ? '0' + seconds : seconds}"`; // Formato min'sec"
+        }
+
+        function convertMinToHourMinSec(minutes) {
+            const hours = Math.floor(minutes / 60); // Obtener las horas
+            const remainingMinutes = Math.floor(minutes % 60); // Obtener los minutos restantes
+            const seconds = Math.round((minutes % 1) * 60); // Obtener los segundos restantes
+
+            return `${hours}h${remainingMinutes}'${seconds}"`; // Formato: 0h27'30"
+        }
+        
+        function recreate_chartid(chartId) {    // Función volver a crear el id de la figura
+            const chartElement = document.getElementById(chartId);
+            if (chartElement) {
+                const parent = chartElement.parentNode; // Obtener el contenedor del canvas
+                const newCanvas = document.createElement('canvas'); // Crear un nuevo canvas
+                newCanvas.id = chartId; // Asignar el mismo ID
+                parent.replaceChild(newCanvas, chartElement); // Reemplazar el viejo canvas por el nuevo
+            }
+        }
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,1423 @@
+<!DOCTYPE html> <!--Estable que el documento es HTML5-->
+<html lang="es"> <!--Estable que el idioma es el español-->
+
+<head>
+    <title>RunFlow-Informes</title>
+
+    <meta charset="UTF-8"> <!--Estable la codificacion de los caracteres UTF-8-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!--Hacer página responsiva y autoescalable a la pantalla-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> <!--Biblioteca para leer archivos xlsx-->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!--Biblioteca para crear graficos interactivos-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"> <!-- Hoja de estilos de Leaflet para la visualización de mapas -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> <!-- Biblioteca Leaflet para la creación de mapas interactivos -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"><!-- Fuente de texto -->
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/5.4.4/css/tabulator.min.css" rel="stylesheet"><!-- Libreria de tablas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/5.4.4/js/tabulator.min.js"></script><!-- Libreria de tablas -->
+	<link rel="icon" type="image/png" href="run_logo.png">
+
+    <!--Configuracion estilo web generico-->
+    <style>
+        .container{width:90%;max-width:500px;margin:0 auto;padding:20px;}
+        ::-webkit-scrollbar{width:10px;}
+        ::-webkit-scrollbar-thumb{background:rgb(125,125,125);border-radius:10px;}
+        body{text-align:justify;font-weight:normal;font-size:16px;line-height:1.4;letter-spacing:2px;font-family:'Roboto','Open Sans',Arial,sans-serif;color:rgb(0,121,107);text-decoration:none;margin:10px;padding:10px;background:rgb(245,255,245);transition:background 0.3s ease,color 0.3s ease;}
+        body.dark-mode{background:rgb(0,15,0);color:rgb(213,224,216);}
+        .block-informes-charts{display:flex;flex-direction:column;width:90%;margin:20px auto;background:rgb(230,255,230);border-radius:8px;box-shadow:0 4px 8px black;padding:20px;transition:background 0.3s ease,box-shadow 0.3s ease;}
+        body.dark-mode .block-informes-charts{background:rgb(0,36,6);box-shadow:0 4px 8px rgba(255,255,255,0.2);}
+        .charts-container{display:flex;justify-content:space-between;gap:20px;}
+        select{display:block;width:250px;padding:10px;margin:0 auto;border-radius:8px;font-size:16px;background-color:#f0f0f0;border:2px solid #ddd;transition:all 0.3s ease;}
+        body.dark-mode select{background-color:#333;color:#ddd;border:2px solid #555;}
+        select:hover{border-color:#0d8a5a;background-color:#e0e0e0;}
+        select:focus{outline:none;border-color:#26790d;box-shadow:0 0 5px rgba(97,240,61,0.5);}
+        h1{text-align:center;font-weight:100;font-size:32px;margin-top:20px;}
+        h2{text-align:left;font-weight:100;font-size:26px;text-decoration:underline;margin:0px;}
+        h3{text-align:left;font-weight:100;font-size:18px;font-style:italic;margin-top:20px;}
+        h4{font-size:14px;}
+        h5{font-size:12px;}
+        h6{text-align:justify;font-weight:100;font-size:10px;font-style:italic;line-height:1.1;letter-spacing:0px;margin:2px;padding:0px;}
+    </style>
+
+    <!--Boton de modo claro/oscuro-->
+    <style>
+        label{display:block;margin-bottom:5px;font-weight:bold;}
+        .switch{position:fixed;bottom:20px;right:20px;display:inline-block;width:60px;height:34px;}
+        .switch input{opacity:0;width:0;height:0;}
+        .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;transition:0.4s;border-radius:34px;}
+        .slider:before{position:absolute;content:"";height:26px;width:26px;border-radius:50%;left:4px;bottom:4px;background-color:white;transition:0.4s;}
+        input:checked+.slider{background-color:#2196F3;}
+        input:checked+.slider:before{transform:translateX(26px);}
+    </style>
+    <label class="switch">
+        <input type="checkbox" id="theme-toggle">
+        <span class="slider round"></span>
+    </label>
+    <script>
+        // Selecciona el interruptor y el cuerpo del documento
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+
+        // Recupera la preferencia del tema guardada en localStorage
+        const savedTheme = localStorage.getItem('theme');
+
+        // Aplica el tema guardado si existe (modo oscuro si el usuario lo eligió previamente)
+        if (savedTheme === 'dark-mode') {
+            body.classList.add('dark-mode');
+            themeToggle.checked = true; // Asegura que el interruptor esté activado
+        }
+
+        // Maneja el cambio en el interruptor para alternar el tema
+        themeToggle.addEventListener('change', () => {
+            if (themeToggle.checked) {
+                body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark-mode'); // Guarda la preferencia para el tema oscuro
+            } else {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('theme', ''); // Elimina la preferencia para el tema oscuro
+            }
+        });
+    </script>
+
+    <!--Botones de redireccionar a las diferentes webs(codigos html)-->
+    <style>
+        .button-container-wrapper{display:flex;justify-content:center;margin-top:20px;}
+        .button-container{display:flex;justify-content:center;align-items:center;gap:15px;padding:12px 20px;border:1px solid #ccc;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);background-color:#fff;}
+        .button{padding:10px 20px;font-size:16px;color:rgb(200,255,205);background:rgb(56,133,56);border:none;border-radius:5px;cursor:pointer;text-decoration:none;}
+        .button:hover{background-color:rgb(13,53,13);}
+    </style>
+    <h1>Informes</h1>
+    <div class="button-container-wrapper">
+        <div class="button-container">
+            <a href="index.html" class="button">Inicio</a>
+            <a href="mis actividades.html" class="button">Mis actividades</a>
+            <a href="informes.html" class="button">Informes</a>
+        </div>
+
+    </div>
+
+</head>
+
+<body>
+    <!-- BLOQUE 0- Cargar archivo (manual o automáticamente) -->
+    <style>
+        .inputs-container{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin-top:10px;}
+        .input{display:flex;align-items:center;gap:15px;padding:12px 20px;border:1px solid #ccc;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);background-color:#fff;}
+        .input input[type="file"]{display:none;}
+        .input input[type="text"]{padding:8px 12px;border:1px solid #ccc;border-radius:4px;font-size:14px;line-height:1.5;}
+        .upload-label{display:inline-flex;align-items:center;justify-content:center;padding:8px 16px;background-color:rgb(56,133,56);color:rgb(200,255,205);border-radius:4px;cursor:pointer;font-size:14px;transition:background-color 0.3s;height:36px;}
+        .upload-label:hover{background-color:#218838;}
+    </style>
+    <div class="inputs-container">
+        <div class="input">
+            <label for="fileInput" class="upload-label">Subir Archivo desde PC</label>
+            <input type="file" id="fileInput" accept=".xlsx">
+        </div>
+    </div>
+    <script>
+
+        // 1. Función única para procesar datos y generar gráficas
+        function processAndGenerateCharts(json_summary_data) {
+            generate_descripcion_last_activity(json_summary_data);
+            generate_race_predictor(json_summary_data);
+            generatePerf_Pow_Bpm_LineChart(json_summary_data);
+            generateLoad_Fitness_Fatigue_Form_LineChart(json_summary_data);
+            generatepower_bpm_pace_curva_chart(json_summary_data);
+            generateActivityDistributionChart(json_summary_data);
+            generateZonesEvolutionChart(json_summary_data);
+            generate_historic_LineChart(json_summary_data);
+            generateBlockVISummary(json_summary_data);
+            generateBlockVIAYear(json_summary_data);
+        }
+
+        // 2. Función para cargar archivo automáticamente desde el servidor
+        function loadDefaultFile() {
+            const filePath = '/Output/Big_data/global.xlsx'; 
+            fetch(filePath)
+                .then(response => response.arrayBuffer())
+                .then(data => {
+                    const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json_summary_data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                    processAndGenerateCharts(json_summary_data);
+                })
+                .catch(error => {
+                    console.error("Error al cargar el archivo:", error);
+                });
+        }
+
+        // 3. Función para manejar el archivo subido por el usuario
+        function handleFileUpload(file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const data = new Uint8Array(event.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const json_summary_data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                processAndGenerateCharts(json_summary_data);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 4. Configuramos el input de archivo
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFileUpload(file);
+            }
+        });
+
+        // 5. Ejecutamos la carga automática al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDefaultFile();
+        });
+    
+    </script>
+
+
+    
+    <!--BLOQUE I- Recomendaciones y race predictor -->
+    <style>
+        .charts-container { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 20px; }
+        .chart-clustering, .chart-Race-Predictor { flex: 1; background-color: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: inherit; }
+        .chart-Race-Predictor p { line-height: 1.2; margin: 6px 6px; }
+        .chart-clustering h3, .chart-Race-Predictor h3 { text-align: left; width: 100%; margin-bottom: 8px; }
+        body.dark-mode .chart-clustering, body.dark-mode .chart-Race-Predictor { background-color: #2c2c2c; color: #ddd; box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2); }
+    </style>
+    <div class="block-informes-charts">
+        <h2>Recomendación y mejor marca posibles</h2>
+        <br>
+        <div class="charts-container">
+            <div class="chart-clustering"></div> <!-- Aquí va la descripción -->
+            <div class="chart-Race-Predictor"></div> <!-- Aquí va el race predictor -->
+        </div>
+    </div>
+    <script>
+
+        // Generar descripción del último entrenamiento
+        function generate_descripcion_last_activity(json_summary_data) {
+            if (!json_summary_data || json_summary_data.length === 0) {
+                console.error("No hay datos en json_summary_data");
+                return;
+            }
+
+            // Buscar la última fila válida que tenga un valor en la columna B
+            let lastRow = null;
+            for (let i = json_summary_data.length - 1; i >= 0; i--) {
+                if (json_summary_data[i][1]) { // Columna B (índice 1)
+                    lastRow = json_summary_data[i];
+                    break;
+                }
+            }
+
+            if (!lastRow) {
+                console.error("No se encontró una fila válida con datos en la columna B");
+                return;
+            }
+
+            // Extraer valores
+            const activityDateStr = lastRow[3]; // Columna D
+            const trainingType = lastRow[112]; // Columna DH
+            const anomaly = lastRow[109]; // Columna DE
+            const trainingRecommendation = lastRow[113]; // Columna DJ
+
+            // Calcular días desde la última actividad
+            const activityDate = new Date(activityDateStr.split("/").reverse().join("-"));
+            const today = new Date();
+            const daysSinceLastActivity = Math.floor((today - activityDate) / (1000 * 60 * 60 * 24));
+
+            // Definir si hubo anomalías
+            const anomalyText = anomaly === 0 ? "sin anomalías." : "anomalo, esto no significa nada bueno ni malo, simplemente sus valores se desviaron de lo habitual.";
+
+            // Mapeo de trainingType a descripción
+            const trainingDescriptions = {
+                "Rodaje recuperativo": "Fue un rodaje suave destinado a facilitar la recuperación muscular y eliminar fatiga.",
+                "Rodaje": "Fue un rodaje de intensidad moderada para consolidar la base aeróbica.",
+                "Rodaje extenso": "Fue un rodaje largo a ritmo controlado, buscando acumular kilómetros sin excesiva fatiga.",
+                "Entreno umbral": "Fue un entrenamiento en zona de umbrales, se trata de ritmos sostenibles en el tiempo pero exigentes, perfecto para un entrenamiento de intensidad que no genere excesiva fatiga.",
+                "Intervalos": "Fue una sesión de intervalos de alta intensidad, orientada a mejorar la velocidad y la capacidad anaeróbica.",
+                "Entreno maratoniano": "Fue una sesión de muchos kilómetros enfocados en tocar ritmos fuertes, ritmos cercanos al maratón.",
+                "Carrera media distancia": "Fue un entrenamiento orientado a mejorar la velocidad y resistencia para distancias medias, combinando intensidad y volumen moderado.",
+                "Competicion (trail)": "Fue una carrera de larga distancia de trail, exigente tanto por la distancia como por el desnivel acumulado.",
+                "Ritmo intenso (trail)": "Fue un entrenamiento de montaña que demandó un esfuerzo considerable, trabajando la capacidad aeróbica y la fuerza en terreno irregular.",
+                "Long run (trail)": "Fue un rodaje largo en montaña, diseñado para acumular volumen y resistencia, con un desnivel significativo.",
+                "Rodaje extenso (trail)": "Fue un rodaje largo, que acumula desnivel y genera una fatiga considerable durante los siguientes días, pero que supondrá mejoras para la montaña.",
+                "Rodaje (trail)": "Fue un rodaje por la montaña, ideal para mantener la forma y ganar fuerza y resistencia en las piernas poco a poco.",
+                "Rodaje corto (trail)": "Fue un rodaje corto por la montaña, ideal para mantener la forma y ganar fuerza y resistencia en las piernas sin generar demasiada fatiga."
+            };
+
+            const suggestedTrainings = {
+                "Rodaje recuperativo": "Un rodaje recuperativo sería ideal para asimilar la carga de entrenamientos previos. Una propuesta serían 5-10 km a 5'30\"-6'/km.",
+                "Rodaje": "Un rodaje moderado permitiría mantener el ritmo sin forzar demasiado. Una propuesta serían 8-15 km a 5'-5'30\"/km.",
+                "Rodaje extenso": "Se recomienda un rodaje extenso para seguir sumando kilómetros sin sobrecarga. Una propuesta serían +15 km a 5'-6'/km.",
+                "Entreno umbral": "Se recomienda una sesión a ritmo de umbral para fortalecer la resistencia a esfuerzos intensos. Dos propuestas posibles serían unas series de 3x3 km a ritmo media maratón o alternativamente un fartlek de 10x(3' ritmo media maratón - 2' ritmo recuperativo).",
+                "Intervalos": "Un entrenamiento de intervalos puede mejorar la velocidad y la tolerancia al esfuerzo. Se proponen dos opciones: series cortas, 12x500 m o 6x800 m a ritmo 5-10 km, o series más largas de 1-3 km a ritmos 10-21,1 km.",
+                "Ritmo intenso (trail)": "Un entrenamiento de ritmo intenso en trail puede ayudar a mejorar la capacidad de adaptación al desnivel. No hay una propuesta fija, pero se recomienda acumular desnivel o aumentar ritmo, manteniéndose en zona 3/4 de pulsaciones, tocando zona 5 en subidas puntuales.",
+                "Long run (trail)": "Se recomienda un rodaje largo en montaña para fortalecer la resistencia específica. Lo ideal sería mantener zona 2 de pulsaciones con zona 3 puntualmente, realizando un entreno de +15 km con +600 m de desnivel.",
+                "Rodaje extenso (trail)": "Se recomienda un rodaje largo en montaña para fortalecer la resistencia específica del trail. Lo ideal sería mantener zona 2 de pulsaciones con zona 3 puntualmente en un entreno de +12 km con +500 m de desnivel.",
+                "Rodaje (trail)": "Un rodaje en la montaña puede servir como sesión de ajuste sin sobrecargar el cuerpo. Un ejemplo sería hacer 9-12 km a ritmo de zona 2/3 con 400-700 m de desnivel.",
+                "Rodaje corto (trail)": "Un rodaje corto en trail puede servir como sesión de ajuste sin sobrecargar el cuerpo. Un ejemplo sería hacer 6-10 km a ritmo de zona 2/3 con +300 m de desnivel sin superar los 500 m acumulados."
+            };
+
+            const trainingdescripcion = trainingDescriptions[trainingType] || "Tipo de entrenamiento desconocido.";
+            const suggestedTraining = suggestedTrainings[trainingRecommendation] || "";
+
+            // Construir mensaje
+            const description = `El último entreno se realizó el día ${activityDateStr}, hace ${daysSinceLastActivity} días. ` +
+                                `${trainingdescripcion} Por otro lado destacar que fue un entreno ${anomalyText}<br><br>` +
+                                `${suggestedTraining}`;
+
+            // Insertar el mensaje en la página
+            const container = document.querySelector(".chart-clustering");
+            if (container) {
+                container.innerHTML = `<h3>Recomendación de entreno</h3><p>${description}</p>`;
+            } else {
+                console.error("No se encontró el contenedor .chart-clustering para mostrar la recomendación.");
+            }
+        } 
+
+        // Generar predictor de carreras
+        function generate_race_predictor(json_summary_data) {
+            const lastRow = json_summary_data[json_summary_data.length - 1];
+
+            const estimate3K1 = parseFloat(lastRow[95]).toFixed(2);  // Estimación 1 para 3K
+            const estimate3K2 = parseFloat(lastRow[100]).toFixed(2); // Estimación 2 para 3K
+
+            const estimate5K1 = parseFloat(lastRow[96]).toFixed(2);  // Estimación 1 para 5K
+            const estimate5K2 = parseFloat(lastRow[101]).toFixed(2); // Estimación 2 para 5K
+
+            const estimate10K1 = parseFloat(lastRow[97]).toFixed(2); // Estimación 1 para 10K
+            const estimate10K2 = parseFloat(lastRow[102]).toFixed(2); // Estimación 2 para 10K
+
+            const estimate21K1 = parseFloat(lastRow[98]).toFixed(2); // Estimación 1 para 21.1K
+            const estimate21K2 = parseFloat(lastRow[103]).toFixed(2); // Estimación 2 para 21.1K
+
+            const estimate42K1 = parseFloat(lastRow[99]).toFixed(2); // Estimación 1 para 42.2K
+            const estimate42K2 = parseFloat(lastRow[104]).toFixed(2); // Estimación 2 para 42.2K
+
+            // Generar el contenido HTML con las estimaciones
+            const racePredictorHTML = `
+                <h3>Prediccion de mejor marca posible actualmente</h3>
+                <p>3K : ${convertMinToMinSec(estimate3K1)} - ${convertMinToMinSec(estimate3K2)}</p>
+                <p>5K : ${convertMinToMinSec(estimate5K1)} - ${convertMinToMinSec(estimate5K2)}</p>
+                <p>10K : ${convertMinToMinSec(estimate10K1)} - ${convertMinToMinSec(estimate10K2)}</p>
+                <p>21,1K : ${convertMinToHourMinSec(estimate21K1)} - ${convertMinToHourMinSec(estimate21K2)}</p>
+                <p>42,2K : ${convertMinToHourMinSec(estimate42K1)} - ${convertMinToHourMinSec(estimate42K2)}</p>
+
+            `;
+
+            // Insertar el contenido generado en el contenedor adecuado
+            document.querySelector('.chart-Race-Predictor').innerHTML = racePredictorHTML;
+        }
+    
+    </script>
+
+
+
+    <!--BLOQUE II- Estado de forma-->
+    <style>
+        .chart-tracking-metrics { flex: 6; text-align: center; background-color: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); padding: 20px; }
+        body.dark-mode .chart-tracking-metrics { background-color: #2c2c2c; color: #ddd; box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2); }
+    </style>
+    <div class="block-informes-charts">
+        <h2>Tracking Metrics</h2>
+        <br>
+        <div class="charts-container">
+            <div class="chart-tracking-metrics">
+                <h3>Fitness, form & fatigue</h3>
+                <canvas id="load_fitness_fatigue_form_line_chart"></canvas>
+            </div>
+            <div class="chart-tracking-metrics">
+                <h3>Parametros especificos</h3>
+                <canvas id="perf_pow_bpm_line_chart"></canvas>
+            </div>
+        </div>
+        <br>
+        <select id="dataRangeSelector-trackingmetrics">
+            <option value="31">Último mes</option>
+            <option value="91">Últimos 3 meses</option>
+            <option value="183">Últimos 6 meses</option>
+            <option value="365">Último año</option>
+            <option value="all">Histórico</option>
+        </select>
+    </div>
+    <script>
+
+        function generateLoad_Fitness_Fatigue_Form_LineChart(json_summary_data) { // Generar gráfico lineal de parametros globales
+            
+            // Evento para manejar los cambios en el selector
+            document.getElementById('dataRangeSelector-trackingmetrics').addEventListener('change', function() {
+                const selectedRange = this.value;
+                update_load_fitness_fatigue_form_Chart(selectedRange,json_summary_data);
+            });
+
+            // Inicializar con todos los datos por defecto
+            update_load_fitness_fatigue_form_Chart('30',json_summary_data);
+        }
+        
+        function update_load_fitness_fatigue_form_Chart(dataRange,json_summary_data) { // Función para actualizar el gráfico de fitness_form_
+            let dataToShow;
+            if (dataRange === "all") {
+                dataToShow = json_summary_data.slice(1); // Todos los datos menos el titulo
+            } else {
+                dataToShow = json_summary_data.slice(-dataRange); // Últimos X valores
+            }
+
+            const labels = dataToShow.map(row => excelDateToJSDate(row[0])); 
+            const formaData = dataToShow.map(row => row[107]);
+            const cargaData = dataToShow.map(row => row[25]);
+            const fitnessData = dataToShow.map(row => row[105]);
+            const fatigaData = dataToShow.map(row => row[106]);
+
+            const lineChartData = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Forma',
+                        data: formaData,
+                        borderColor: '#36A2EB',
+                        fill: false,
+                        yAxisID: 'yr',
+                        tension: 0.1,
+                    },
+                    {
+                        label: 'Carga',
+                        data: cargaData,
+                        borderColor: '#FF6384',
+                        fill: false,
+                        pointStyle: 'circle',
+                        radius: 5,
+                        tension: 0,
+                        showLine: false,
+                        yAxisID: 'yr2',
+                    },
+                    {
+                        label: 'Fitness',
+                        data: fitnessData,
+                        borderColor: '#4BC0C0',
+                        yAxisID: 'yl',
+                    },
+                    {
+                        label: 'Fatiga',
+                        data: fatigaData,
+                        borderColor: '#FFCE56',
+                        fill: false,
+                        tension: 0.1,
+                        yAxisID: 'yl',
+                    }
+                ]
+            };
+
+            const lineChartOptions = {
+                scales: {
+                    x: {
+                        title: { 
+                            display: true, 
+                            text: 'Dia' 
+                        }
+                    },
+                    yl: {
+                        position: 'left',
+                        title: { 
+                            display: true, 
+                            text: 'Fitness y Fatiga' 
+                        },
+                        min: 0,
+                        max: 100
+                    },
+                    yr: {
+                        position: 'right',
+                        title: { 
+                            display: true, 
+                        },
+                        min: -50,
+                        max: 50
+                    },
+                    yr2: {
+                        position: 'right',
+                        title: { 
+                            display: true, 
+                            text: 'Forma y Carga' 
+                        },
+                        min: 0,
+                        max: 500
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            position: 'bottom', // Poner la leyenda abajo
+                            fontColor: 'blue',    // Color de la fuente
+                            fontSize: 10,         // Tamaño de la fuente
+                            fontStyle: 'italic', // Estilo de la fuente
+                            padding: 10,          // Espaciado entre elementos de la leyenda
+                            usePointStyle: true // Cambiar los cuadros a círculos
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function (tooltipItem) {
+                                const day = tooltipItem[0].label;
+                                return 'Dia: ' + day;
+                            },
+                            label: function (tooltipItem) {
+                                const forma = tooltipItem.chart.data.datasets[0].data[tooltipItem.dataIndex];
+                                const carga = tooltipItem.chart.data.datasets[1].data[tooltipItem.dataIndex];
+                                const fitness = tooltipItem.chart.data.datasets[2].data[tooltipItem.dataIndex];
+                                const fatiga = tooltipItem.chart.data.datasets[3].data[tooltipItem.dataIndex];
+                                return [
+                                    'Carga: ' + carga.toFixed(2),
+                                    'Forma: ' + forma.toFixed(2),
+                                    'Fitness: ' + fitness.toFixed(2),
+                                    'Fatiga: ' + fatiga.toFixed(2)
+                                ];
+                            }
+                        }
+                    }
+                },
+                responsive: true,
+                maintainAspectRatio: true
+            };
+
+            // Crear el gráfico de barras
+            recreate_chartid('load_fitness_fatigue_form_line_chart');
+
+            // Crear o actualizar el gráfico
+            if (window.chart2) {
+                window.chart2.destroy(); // Destruir el gráfico existente
+            }
+            window.chart2 = new Chart(document.getElementById('load_fitness_fatigue_form_line_chart').getContext('2d'), {
+                type: 'line',
+                data: lineChartData,
+                options: lineChartOptions
+            });
+        }
+
+        function generatePerf_Pow_Bpm_LineChart(json_summary_data) { // Generar gráfico lineal de parametros globales
+            // Evento para manejar los cambios en el selector
+            document.getElementById('dataRangeSelector-trackingmetrics').addEventListener('change', function() {
+                const selectedRange = this.value;
+                update_perf_pow_bpm_Chart(selectedRange, json_summary_data);
+            });
+
+            // Inicializar con todos los datos por defecto
+            update_perf_pow_bpm_Chart('30', json_summary_data);
+        }
+
+        function update_perf_pow_bpm_Chart(dataRange, json_summary_data) { // Función para actualizar el gráfico
+            let dataToShow;
+            if (dataRange === "all") {
+                dataToShow = json_summary_data.slice(1); // Todos los datos menos el titulo
+            } else {
+                dataToShow = json_summary_data.slice(-dataRange); // Últimos X valores
+            }
+
+            const labels = dataToShow.map(row => excelDateToJSDate(row[0])); 
+            const potenciaData = dataToShow.map(row => row[24]);
+            const PIData = dataToShow.map(row => row[27]);
+            const vdotData = dataToShow.map(row => row[26]);
+            const RPSData = dataToShow.map(row => row[108]);
+
+            const lineChartData = {
+                labels: labels, // Usar los datos del rango seleccionado
+                datasets: [
+                    {
+                        label: 'Potencia estandarizada (W)',
+                        data: potenciaData,
+                        borderColor: '#36A2EB',
+                        pointStyle: 'circle',
+                        radius: 5,
+                        tension: 0,
+                        showLine: false,
+                        yAxisID: 'y1',
+                        hidden: false
+                    },
+                    {
+                        label: 'PI (%)',
+                        data: PIData,
+                        borderColor: '#4BC0C0',
+                        yAxisID: 'y1',
+                        pointStyle: 'crossRot',
+                        radius: 5,
+                        tension: 0,
+                        showLine: false,
+                        hidden: false
+                    },
+                    {
+                        label: 'VDOT (ud)',
+                        data: vdotData,
+                        borderColor: '#FF6384',
+                        pointStyle: 'star',
+                        radius: 6,
+                        tension: 0,
+                        showLine: false,
+                        yAxisID: 'y2',
+                        hidden: false
+                    },
+                    {
+                        label: 'RPS (%)',
+                        data: RPSData,
+                        borderColor: '#9B7F2D',
+                        pointStyle: 'crossRot',
+                        radius: 6,
+                        tension: 0,
+                        showLine: false,
+                        yAxisID: 'y1',
+                        hidden: false
+                    }
+                ]
+            };
+
+            const lineChartOptions = {
+                scales: {
+                    x: {
+                        title: { 
+                            display: true, 
+                            text: 'Dia' 
+                        }
+                    },
+                    y1: { 
+                        position: 'left',
+                        title: { 
+                            display: true, 
+                            text: 'PI (%) y Potencia (W)' 
+                        },
+                        min: 45,
+                        max: 275,
+                    },
+                    y2: { 
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'VDOT (ud)'
+                        },
+                      min:10,
+                      max:60,
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            position: 'bottom', // Poner la leyenda abajo
+                            fontColor: 'blue',    // Color de la fuente
+                            fontSize: 10,         // Tamaño de la fuente
+                            fontStyle: 'italic', // Estilo de la fuente
+                            padding: 10,          // Espaciado entre elementos de la leyenda
+                            usePointStyle: true // Cambiar los cuadros a círculos
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function (tooltipItem) {
+                                const day = tooltipItem[0].label;
+                                return 'Dia: ' + day;
+                            },
+                            label: function (tooltipItem) {
+                                const power = tooltipItem.chart.data.datasets[0].data[tooltipItem.dataIndex];
+                                const PI = tooltipItem.chart.data.datasets[1].data[tooltipItem.dataIndex];
+                                const vdot = tooltipItem.chart.data.datasets[2].data[tooltipItem.dataIndex];
+                                const rps = tooltipItem.chart.data.datasets[3].data[tooltipItem.dataIndex];
+                                return [
+                                    'Potencia: ' + power.toFixed(2) + ' W',
+                                    'PI: ' + PI.toFixed(2) + ' %',
+                                    'VDOT: ' + vdot.toFixed(2) + ' ud',
+                                    'RPS: ' + rps.toFixed(2) + ' %',
+                                ];
+                            }
+                        }
+                    }
+                },
+                responsive: true,
+                maintainAspectRatio: true
+            };
+
+            // Crear el gráfico de barras
+            recreate_chartid('perf_pow_bpm_line_chart');
+
+            // Crear o actualizar el gráfico
+            if (window.chart) {
+                window.chart.destroy(); // Destruir el gráfico existente
+            }
+            window.chart = new Chart(document.getElementById('perf_pow_bpm_line_chart').getContext('2d'), {
+                type: 'line',
+                data: lineChartData,
+                options: lineChartOptions
+            });
+        }
+
+    </script>
+
+
+
+    <!--BLOQUE III- Relacion ritmo-bpm -->
+    <style>
+        .chart-ritmo-bpm { flex: 5; text-align: center; background-color: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); padding: 20px; }
+        body.dark-mode .chart-ritmo-bpm { background-color: #2c2c2c; color: #ddd; box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2); }
+    </style>
+    <div class="block-informes-charts">
+        <h2>Relacion ritmo-pulsaciones </h2>
+        <br>
+        <div class="charts-container">
+            <div class="chart-ritmo-bpm">
+                <h3>Curva road</h3>
+                <canvas id="chart-curva-pace-bpm-road"></canvas>
+            </div>
+            <div class="chart-ritmo-bpm">
+                <h3>Curva trail</h3>
+                <canvas id="chart-curva-pace-bpm-trail"></canvas>
+            </div>
+        </div>
+    </div>
+    <script>
+
+        function generatepower_bpm_pace_curva_chart(json_summary_data) {
+            const bpm_ratios = [
+                "0-120", "120-130", "130-140", "140-148", "148-153", "153-158", "158-163",
+                "163-168", "168-173", "173-178", "178-183", "183-188", "188-193", "193-198",
+                "198-203", "203-220"
+            ];
+
+            const monthsToInclude = 4;
+            const daysPer6Months = 183;
+
+            function calculateChartData(startOffset, endOffset, terrainType) {
+                const data = Array(16).fill(0);
+                const count = Array(16).fill(0);
+                const startIndex = json_summary_data.length - endOffset;
+                const endIndex = json_summary_data.length - startOffset;
+
+                for (let row = startIndex; row < endIndex; row++) {
+                    if (json_summary_data[row][1] === terrainType) {
+                        for (let col = 57; col <= 72; col++) {
+                            const value = json_summary_data[row][col];
+                            if (value !== null && value !== undefined && value !== '' && parseFloat(value) !== 0) {
+                                const index = col - 57;
+                                data[index] += parseFloat(value);
+                                count[index]++;
+                            }
+                        }
+                    }
+                }
+
+                return data.map((sum, index) => (count[index] > 0 ? sum / count[index] : null));
+            }
+
+            function generateDatasets(terrainType, hue) {
+                const datasets = [];
+
+                for (let i = 0; i < monthsToInclude; i++) {
+                    const startOffset = i * daysPer6Months;
+                    const endOffset = (i + 1) * daysPer6Months;
+                    const data = calculateChartData(startOffset, endOffset, terrainType);
+                    const startMonths = Math.floor(startOffset / 30);
+                    const endMonths = Math.floor(endOffset / 30);
+                    const label = `${terrainType} - ${startMonths} a ${endMonths} meses`;
+
+
+                    const lightness = 70 - (i * 15);  // más reciente = más claro, más antiguo = más oscuro
+                    const color = `hsl(${hue}, 80%, ${lightness}%)`;
+
+                    datasets.push({
+                        label,
+                        data,
+                        backgroundColor: 'transparent',
+                        borderColor: color,
+                        borderWidth: 2,
+                        tension: 0.4
+                    });
+                }
+
+                return datasets;
+            }
+
+            const roadDatasets = generateDatasets("Road", 210);   // azul
+            const trailDatasets = generateDatasets("Trail", 0);    // rojo
+
+            function createChart(canvasId, datasets) {
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: bpm_ratios,
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: true, position: 'top' },
+                            tooltip: {
+                                enabled: true,
+                                callbacks: {
+                                    label: function (tooltipItem) {
+                                        const datasetLabel = tooltipItem.dataset.label || '';
+                                        const value = tooltipItem.raw;
+                                        return `${datasetLabel}: ${convertMinToMinSec(value)} min/km`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { title: { display: true, text: 'Rangos de BPM' } },
+                            y: {
+                                title: { display: true, text: 'Ritmo (min/km)' },
+                                beginAtZero: false,
+                                min: 2.5,
+                                reverse: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            createChart('chart-curva-pace-bpm-road', roadDatasets);
+            createChart('chart-curva-pace-bpm-trail', trailDatasets);
+        }
+
+    </script>
+    
+    
+
+    <!-- BLOQUE IV - Distribuciones históricas -->
+    <style>
+        .charts-container{display:flex;justify-content:space-between;align-items:center;width:100%;gap:20px;}
+        .chart-distribucion-historica{flex-grow:1;background-color:white;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.1);padding:20px;text-align:center;}
+        .chart-distribucion-historica:first-child{flex-basis:35%;max-width:35%;}
+        .chart-distribucion-historica:last-child{flex-basis:65%;max-width:65%;}
+        .chart-content{width:100%;max-width:800px;height:400px;display:flex;justify-content:center;align-items:center;margin:0 auto;}
+        body.dark-mode .block-informes-charts{background-color:#2c2c2c;color:#ddd;}
+        body.dark-mode .chart-distribucion-historica{background-color:#2c2c2c;color:#ddd;box-shadow:0 4px 15px rgba(255,255,255,0.2);}
+    </style>
+    <div class="block-informes-charts">
+      <h2>Distribución histórica</h2>
+      <br>
+      <div class="charts-container">
+        <div class="chart-distribucion-historica">
+          <h3>Distribución de actividades</h3>
+          <div class="chart-content">
+            <canvas id="chart-clusters-historic"></canvas>
+          </div>
+        </div>
+        <div class="chart-distribucion-historica">
+          <h3>Tiempo en zonas histórico</h3>
+          <div class="chart-content">
+            <canvas id="chart-zones-historic"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+
+        function generateActivityDistributionChart(json_summary_data) {
+            const activityCounts = {
+                'Rodaje recuperativo': 0,
+                'Rodaje': 0,
+                'Rodaje extenso': 0,
+                'Entreno umbral': 0,
+                'Intervalos': 0,
+                'Entreno maratoniano': 0,
+                'Carrera media distancia': 0,
+                'Competicion (trail)': 0,
+                'Ritmo intenso (trail)': 0,
+                'Long run (trail)': 0,
+                'Rodaje extenso (trail)': 0,
+                'Rodaje (trail)': 0,
+                'Rodaje corto (trail)': 0
+            };
+
+            let totalActivities = 0;
+
+            json_summary_data = json_summary_data.slice(1); // Todos los datos menos el titulo
+            json_summary_data.forEach(row => {
+                const activityType = row[112];
+                if (activityType !== 'Dia de descanso') { // Excluir "Dia de descanso"
+                    if (activityCounts.hasOwnProperty(activityType)) {
+                        activityCounts[activityType]++;
+                        totalActivities++; // Solo contar actividades válidas
+                    }
+                }
+            });
+
+            const filteredLabels = Object.keys(activityCounts).filter(key => activityCounts[key] > 0);
+            const filteredData = filteredLabels.map(key => activityCounts[key]);
+
+            const ctx = document.getElementById('chart-clusters-historic').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: filteredLabels,
+                    datasets: [{
+                        data: filteredData,
+                        backgroundColor: [
+                            '#90EE90', // Rodaje recuperativo
+                            '#32CD32', // Rodaje
+                            '#2E8B57',  // Rodaje extenso
+                            '#FFD700', // Entreno umbral
+                            '#FFA500', // Intervalos
+                            '#D35400', // Entreno maratoniano
+                            '#580F41', // Carrera media distancia
+                            '#580F41', // Competicion (trail)
+                            '#BC4A3C', // Ritmo intenso (trail)
+                            '#0000A8', // Long run (trail)
+                            '#4169E1', // Rodaje extenso (trail)
+                            '#6495ED', // Rodaje (trail)
+                            '#ADD8E6'  // Rodaje corto (trail)
+                        ],
+                        borderColor: '#fff',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: tooltipItem => {
+                                    const value = tooltipItem.raw;
+                                    const percentage = ((value / totalActivities) * 100).toFixed(1);
+                                    return `${tooltipItem.label}: ${percentage}% - ${value} ent.`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+      
+        function generateZonesEvolutionChart(json_summary_data) {
+            const dates = [];
+            const timeInZones = { 'Z1': [], 'Z2': [], 'Z3': [], 'Z4': [], 'Z5': [] };
+
+            json_summary_data = json_summary_data.slice(1); // Todos los datos menos el titulo
+            json_summary_data.forEach(row => {
+                if (!row[39] || !row[40] || !row[41] || !row[42] || !row[43]) return;
+                dates.push(row[3]);
+
+                // Sumar total de tiempo en todas las zonas
+                const total = row[39] + row[40] + row[41] + row[42] + row[43];
+
+                // Convertir a porcentaje (evita división por cero)
+                timeInZones['Z1'].push(total ? (row[39] / total) * 100 : 0);
+                timeInZones['Z2'].push(total ? (row[40] / total) * 100 : 0);
+                timeInZones['Z3'].push(total ? (row[41] / total) * 100 : 0);
+                timeInZones['Z4'].push(total ? (row[42] / total) * 100 : 0);
+                timeInZones['Z5'].push(total ? (row[43] / total) * 100 : 0);
+            });
+
+            const ctx = document.getElementById('chart-zones-historic').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        { label: 'Z1', data: timeInZones['Z1'], backgroundColor: '#33FF57', stack: 'stack' }, // Verde claro
+                        { label: 'Z2', data: timeInZones['Z2'], backgroundColor: '#77DD77', stack: 'stack' }, // Verde normal
+                        { label: 'Z3', data: timeInZones['Z3'], backgroundColor: '#FFD700', stack: 'stack' }, // Amarillo
+                        { label: 'Z4', data: timeInZones['Z4'], backgroundColor: '#FFA500', stack: 'stack' }, // Naranja
+                        { label: 'Z5', data: timeInZones['Z5'], backgroundColor: '#FF0000', stack: 'stack' }  // Rojo
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, beginAtZero: true, max: 100, title: { display: true, text: 'Porcentaje (%)' } }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                position: 'bottom', // Poner la leyenda abajo
+                                fontColor: 'blue',    // Color de la fuente
+                                fontSize: 10,         // Tamaño de la fuente
+                                fontStyle: 'italic', // Estilo de la fuente
+                                padding: 10,          // Espaciado entre elementos de la leyenda
+                                usePointStyle: true // Cambiar los cuadros a círculos
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: tooltipItem => `${tooltipItem.dataset.label}: ${tooltipItem.raw.toFixed(1)}%`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+    </script>
+
+
+
+    <!--BLOQUE V - Grafico historico -->
+    <style>
+        .charts-container-2{display:flex;justify-content:space-between;align-items:center;height:500px;width:100%;}
+        .chart-tracking-metrics-2{width:80%;height:100%;text-align:center;background-color:white;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.1);padding:20px;display:flex;justify-content:center;align-items:center;}
+        body.dark-mode .chart-tracking-metrics-2{background-color:#2c2c2c;color:#ddd;box-shadow:0 4px 15px rgba(255,255,255,0.2);}
+        .selectors-container{display:flex;flex-direction:column;justify-content:center;height:100%;width:20%;gap:10px;}
+        .selectors-container div{display:flex;justify-content:center;align-items:center;}
+    </style>
+    <div class="block-informes-charts">
+        <h2>Histórico de datos</h2>
+        <br>
+        <!-- Contenedor de gráficos y selectores en paralelo -->
+        <div class="charts-container-2">
+            <div class="chart-tracking-metrics-2">
+                <canvas id="load_historic_line_chart"></canvas>
+            </div>
+            <div class="selectors-container">
+                <select id="dataRangeSelector-trackingmetrics-2">
+                    <option value="31">Último mes</option>
+                    <option value="91">Últimos 3 meses</option>
+                    <option value="183">Últimos 6 meses</option>
+                    <option value="365">Último año</option>
+                    <option value="all">Histórico</option>
+                </select>
+                <select id="lineSelector1">
+                    <option value="totaltime">Tiempo Total</option>
+                    <option value="totaldistance">Distancia Total</option>
+                    <option value="equivalence_distance">Equivalencia de Distancia</option>
+                    <option value="total_accumulated_positive_level">Acumulado de Nivel Positivo</option>
+                    <option value="moving_average_pace">Ritmo Promedio Móvil</option>
+                    <option value="real_average_pace">Ritmo Promedio Real</option>
+                    <option value="average_rap">RAP Promedio</option>
+                    <option value="deviation_pace">Desviación del Ritmo</option>
+                    <option value="average_bpm">BPM Promedio</option>
+                    <option value="max_bpm">BPM Máximo</option>
+                    <option value="deviation_bpm">Desviación del BPM</option>
+                    <option value="average_bpmxrap">Promedio BPM x RAP</option>
+                    <option value="average_cadence">Cadencia Promedio</option>
+                    <option value="average_stride">Longitud de Zancada Promedio</option>
+                    <option value="total_energu">Energía Total</option>
+                    <option value="average_power">Potencia Promedio</option>
+                    <option value="training_load">Carga de Entrenamiento</option>
+                    <option value="intenisity_factor">Factor de Intensidad</option>
+                    <option value="average_VAM">VAM Promedio</option>
+                    <option value="energy_km">Energía por Kilómetro</option>
+                    <option value="TSS_power">TSS Potencia</option>
+                    <option value="TSS_bpm">TSS BPM</option>
+                    <option value="km3_predict_pb">Predicción 3km</option>
+                    <option value="km5_predict_pb">Predicción 5km</option>
+                    <option value="km10_predict_pb">Predicción 10km</option>
+                    <option value="km21_predict_pb">Predicción 21.1km</option>
+                    <option value="km42_predict_pb">Predicción 42.2km</option>
+                    <option value="RPS">Running Performance Score</option>
+                </select>
+              	<select id="lineSelector2">
+                    <option value="totaltime">Tiempo Total</option>
+                    <option value="totaldistance">Distancia Total</option>
+                    <option value="equivalence_distance">Equivalencia de Distancia</option>
+                    <option value="total_accumulated_positive_level">Acumulado de Nivel Positivo</option>
+                    <option value="moving_average_pace">Ritmo Promedio Móvil</option>
+                    <option value="real_average_pace">Ritmo Promedio Real</option>
+                    <option value="average_rap">RAP Promedio</option>
+                    <option value="deviation_pace">Desviación del Ritmo</option>
+                    <option value="average_bpm">BPM Promedio</option>
+                    <option value="max_bpm">BPM Máximo</option>
+                    <option value="deviation_bpm">Desviación del BPM</option>
+                    <option value="average_bpmxrap">Promedio BPM x RAP</option>
+                    <option value="average_cadence">Cadencia Promedio</option>
+                    <option value="average_stride">Longitud de Zancada Promedio</option>
+                    <option value="total_energu">Energía Total</option>
+                    <option value="average_power">Potencia Promedio</option>
+                    <option value="training_load">Carga de Entrenamiento</option>
+                    <option value="intenisity_factor">Factor de Intensidad</option>
+                    <option value="average_VAM">VAM Promedio</option>
+                    <option value="energy_km">Energía por Kilómetro</option>
+                    <option value="TSS_power">TSS Potencia</option>
+                    <option value="TSS_bpm">TSS BPM</option>
+                    <option value="km3_predict_pb">Predicción 3km</option>
+                    <option value="km5_predict_pb">Predicción 5km</option>
+                    <option value="km10_predict_pb">Predicción 10km</option>
+                    <option value="km21_predict_pb">Predicción 21.1km</option>
+                    <option value="km42_predict_pb">Predicción 42.2km</option>
+                    <option value="RPS">Running Performance Score</option>
+                </select>
+            </div>
+        </div>
+        <br>
+    </div>
+    <script>
+
+        function generate_historic_LineChart(json_summary_data) {
+            // Escucha cambios en el selector de rango de tiempo
+            document.getElementById('dataRangeSelector-trackingmetrics-2').addEventListener('change', function() {
+                const selectedRange = this.value;
+                update_historic_Chart(selectedRange, json_summary_data);
+            });
+            // Escucha cambios en los selectores de métricas
+            document.getElementById('lineSelector1').addEventListener('change', function() {
+                update_historic_Chart(document.getElementById('dataRangeSelector-trackingmetrics-2').value, json_summary_data);
+            });
+            document.getElementById('lineSelector2').addEventListener('change', function() {
+                update_historic_Chart(document.getElementById('dataRangeSelector-trackingmetrics-2').value, json_summary_data);
+            });
+
+            // Inicializa con el rango por defecto (último mes)
+            update_historic_Chart('31', json_summary_data);
+        }
+
+        function update_historic_Chart(dataRange, json_summary_data) {
+            let dataToShow;
+            if (dataRange === "all") {
+                dataToShow = json_summary_data.slice(1); // Todos los datos
+            } else {
+                const rangeNumber = parseInt(dataRange, 10);
+                dataToShow = json_summary_data.slice(-rangeNumber); // Últimos X valores
+            }
+
+            // Extraer etiquetas y datos
+            const labels = dataToShow.map(row => excelDateToJSDate(row[0])); 
+            const totaltime = dataToShow.map(row => row[7]);
+            const totaldistance = dataToShow.map(row => row[8]);
+            const equivalence_distance = dataToShow.map(row => row[9]);
+            const total_accumulated_positive_level = dataToShow.map(row => row[10]);
+            const moving_average_pace = dataToShow.map(row => row[12]);
+            const real_average_pace = dataToShow.map(row => row[13]);
+            const average_rap = dataToShow.map(row => row[14]);
+            const deviation_pace = dataToShow.map(row => row[15]);
+            const average_bpm = dataToShow.map(row => row[16]);
+            const max_bpm = dataToShow.map(row => row[17]);
+            const deviation_bpm = dataToShow.map(row => row[18]);
+            const average_bpmxrap = dataToShow.map(row => row[19]);
+            const average_cadence = dataToShow.map(row => row[20]);
+            const average_stride = dataToShow.map(row => row[21]);
+            const total_energu = dataToShow.map(row => row[22]);
+            const average_power = dataToShow.map(row => row[23]);
+            const training_load = dataToShow.map(row => row[25]);
+            const intenisity_factor = dataToShow.map(row => row[28]);
+            const average_VAM = dataToShow.map(row => row[29]);
+            const energy_km = dataToShow.map(row => row[30]);
+            const TSS_power = dataToShow.map(row => row[31]);
+            const TSS_bpm = dataToShow.map(row => row[32]);
+            const km3_predict_pb = dataToShow.map(row => row[95]);
+            const km5_predict_pb = dataToShow.map(row => row[96]);
+            const km10_predict_pb = dataToShow.map(row => row[97]);
+            const km21_predict_pb = dataToShow.map(row => row[98]);
+            const km42_predict_pb = dataToShow.map(row => row[99]);
+            const RPS = dataToShow.map(row => row[108]);
+
+            // Mapeo de las métricas disponibles
+            const metricsMapping = {
+                totaltime: totaltime,
+                totaldistance: totaldistance,
+                equivalence_distance: equivalence_distance,
+                total_accumulated_positive_level: total_accumulated_positive_level,
+                moving_average_pace: moving_average_pace,
+                real_average_pace: real_average_pace,
+                average_rap: average_rap,
+                deviation_pace: deviation_pace,
+                average_bpm: average_bpm,
+                max_bpm: max_bpm,
+                deviation_bpm: deviation_bpm,
+                average_bpmxrap: average_bpmxrap,
+                average_cadence: average_cadence,
+                average_stride: average_stride,
+                total_energu: total_energu,
+                average_power: average_power,
+                training_load: training_load,
+                intenisity_factor: intenisity_factor,
+                average_VAM: average_VAM,
+                energy_km: energy_km,
+                TSS_power: TSS_power,
+                TSS_bpm: TSS_bpm,
+                km3_predict_pb: km3_predict_pb,
+                km5_predict_pb: km5_predict_pb,
+                km10_predict_pb: km10_predict_pb,
+                km21_predict_pb: km21_predict_pb,
+                km42_predict_pb: km42_predict_pb,
+                RPS: RPS
+            };
+
+            // Obtener los valores seleccionados
+            const selectedMetric1 = document.getElementById('lineSelector1').value;
+            const selectedMetric2 = document.getElementById('lineSelector2').value;
+
+            // Filtrar los índices para los cuales al menos una de las métricas tenga valor
+            const validIndices = labels.map((_, i) => i).filter(i => {
+                const val1 = metricsMapping[selectedMetric1][i];
+                const val2 = (metricsMapping[selectedMetric2] && selectedMetric2 !== selectedMetric1) ? metricsMapping[selectedMetric2][i] : null;
+                return (val1 !== null && val1 !== undefined) || (val2 !== null && val2 !== undefined);
+            });
+
+            // Construir arrays filtrados
+            const filteredLabels = validIndices.map(i => labels[i]);
+            const metric1Data = validIndices.map(i => metricsMapping[selectedMetric1][i]);
+            let metric2Data = [];
+            if (selectedMetric2 !== selectedMetric1 && metricsMapping[selectedMetric2]) {
+                metric2Data = validIndices.map(i => metricsMapping[selectedMetric2][i]);
+            }
+
+            // Construir datos para el gráfico
+            const lineChartData = {
+                labels: filteredLabels,
+                datasets: []
+            };
+
+            // Primer dataset con eje y1
+            if (metricsMapping[selectedMetric1]) {
+                lineChartData.datasets.push({
+                    label: selectedMetric1,
+                    data: metric1Data,
+                    borderColor: 'rgba(255, 99, 132, 1)', // Rojo
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    fill: false,
+                    tension: 0.1,
+                    yAxisID: 'y1'
+                });
+            }
+
+            // Segundo dataset con eje y2 (si es diferente)
+            if (selectedMetric2 !== selectedMetric1 && metricsMapping[selectedMetric2]) {
+                lineChartData.datasets.push({
+                    label: selectedMetric2,
+                    data: metric2Data,
+                    borderColor: 'rgba(54, 162, 235, 1)', // Azul
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    fill: false,
+                    tension: 0.1,
+                    yAxisID: 'y2'
+                });
+            }
+
+            // Opciones del gráfico con dos ejes Y
+            const lineChartOptions = {
+                scales: {
+                    x: {
+                        title: { 
+                            display: true, 
+                            text: 'Día'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: selectedMetric1
+                        }
+                    },
+                    y2: {
+                        type: 'linear',
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: selectedMetric2
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            position: 'bottom', // Poner la leyenda abajo
+                            fontColor: 'blue',    // Color de la fuente
+                            fontSize: 10,         // Tamaño de la fuente
+                            fontStyle: 'italic', // Estilo de la fuente
+                            padding: 10,          // Espaciado entre elementos de la leyenda
+                            usePointStyle: true // Cambiar los cuadros a círculos
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                return 'Día: ' + tooltipItems[0].label;
+                            },
+                            label: function(tooltipItem) {
+                                return 'Valor: ' + parseFloat(tooltipItem.formattedValue).toFixed(2);
+                            }
+                        }
+                    }
+                },
+                responsive: true,
+                maintainAspectRatio: true
+            };
+
+            // Si existe un gráfico previo, lo destruimos
+            if (window.charthistoric) {
+                window.charthistoric.destroy();
+            }
+
+            // Creamos el nuevo gráfico
+            window.charthistoric = new Chart(document.getElementById('load_historic_line_chart').getContext('2d'), {
+                type: 'line',
+                data: lineChartData,
+                options: lineChartOptions
+            });
+        }
+
+    </script>
+
+
+
+    <!-- BLOQUE VI - Resumen histórico y anual -->
+    <style>
+        .vi-charts-container{display:flex;gap:20px;justify-content:space-between;}
+        .chart-vi-summary{flex:1;background-color:white;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.1);padding:20px;}
+        .chart-vi-summary h3{margin-top:0;}
+        .chart-vi-summary ul{list-style:none;padding-left:0;line-height:1.6;}
+        body.dark-mode .chart-vi-summary{background-color:#2c2c2c;color:#ddd;box-shadow:0 4px 15px rgba(255,255,255,0.2);}
+    </style>
+    <div class="block-informes-charts">
+        <h2>Resumen Histórico y Año Actual</h2>
+        <div class="vi-charts-container">
+            <div class="chart-vi-summary">
+                <h3>Resumen Histórico</h3>
+                <ul id="historic-summary-list"></ul>
+            </div>
+            <div class="chart-vi-summary">
+                <h3>Resumen Año Actual</h3>
+                <ul id="annual-summary-list"></ul>
+            </div>
+        </div>
+    </div>
+    <script>
+
+        function computeSummary(rows, listId, labels = {}) {
+            const total_Activities = rows.length;
+            const total_time = rows.reduce((sum, r) => sum + parseFloat(r[7] || 0), 0);
+            const total_Distance = rows.reduce((sum, r) => sum + parseFloat(r[8] || 0), 0);
+            const total_positive_level = rows.reduce((sum, r) => sum + parseFloat(r[10] || 0), 0);
+            const total_energy = rows.reduce((sum, r) => sum + parseFloat(r[22] || 0), 0) / 1000;
+        
+            function media(index) {
+                const values = rows.map(r => parseFloat(r[index])).filter(v => !isNaN(v));
+                return values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+            }
+        
+            function max(index) {
+                const values = rows.map(r => parseFloat(r[index])).filter(v => !isNaN(v));
+                return values.length ? Math.max(...values) : 0;
+            }
+        
+            const moving_average_pace = media(12);
+            const real_average_pace = media(13);
+            const average_rap = media(14);
+            const deviation_pace = media(15);
+            const average_bpm = media(16);
+            const max_bpm = max(17);
+            const deviation_bpm = media(18);
+            const average_power = media(23);
+            const mean_energy = media(22);
+            const standardized_power = media(24);
+            const training_load = media(25);
+            const vdot = media(26);
+            const PI = media(27);
+            const RPS = media(108);
+        
+            const l = {
+                total_Sessions: labels.total_Sessions || "Sesiones totales",
+                total_Distance: labels.total_Distance || "Distancia total",
+                total_time: labels.total_time || "Tiempo total",
+                total_positive_level: labels.total_positive_level || "Desnivel positivo total",
+                total_energy: labels.total_energy || "Energía total",
+        
+                moving_average_pace: "Ritmo medio en movimiento",
+                real_average_pace: "Ritmo medio real",
+                average_rap: "RAP medio",
+                deviation_pace: "Desviación ritmo",
+                average_bpm: "FC media",
+                max_bpm: "FC máxima",
+                deviation_bpm: "Desviación FC",
+                mean_energy: "Energia media",
+                average_power: "Potencia media",
+                standardized_power: "Potencia normalizada",
+                training_load: "Carga de entrenamiento",
+                vdot: "VDOT medio",
+                PI: "Rendimiento estimado",
+                RPS: "Running Performance Score"
+            };
+        
+            document.getElementById(listId).innerHTML = `
+                <li><strong>${l.total_Sessions}:</strong> ${total_Activities} ud</li>
+                <li><strong>${l.total_Distance}:</strong> ${total_Distance.toFixed(1)} km</li>
+                <li><strong>${l.total_time}:</strong> ${convertMinToHourMinSec(total_time)}</li>
+                <li><strong>${l.total_positive_level}:</strong> ${total_positive_level.toFixed(0)} m</li>
+                <li><strong>${l.total_energy}:</strong> ${total_energy.toFixed(0)} Mcal</li>
+        
+                <li><strong>${l.moving_average_pace}:</strong> ${convertMinToMinSec(moving_average_pace)}</li>
+                <li><strong>${l.real_average_pace}:</strong> ${convertMinToMinSec(real_average_pace)}</li>
+                <li><strong>${l.average_rap}:</strong> ${convertMinToMinSec(average_rap)}</li>
+                <li><strong>${l.deviation_pace}:</strong> ${deviation_pace.toFixed(1)} %</li>
+                <li><strong>${l.average_bpm}:</strong> ${average_bpm.toFixed(0)}</li>
+                <li><strong>${l.max_bpm}:</strong> ${max_bpm.toFixed(0)}</li>
+                <li><strong>${l.deviation_bpm}:</strong> ${deviation_bpm.toFixed(1)} %</li>
+                <li><strong>${l.mean_energy}:</strong> ${mean_energy.toFixed(1)} kcal</li>
+                <li><strong>${l.average_power}:</strong> ${average_power.toFixed(1)} W</li>
+                <li><strong>${l.standardized_power}:</strong> ${standardized_power.toFixed(1)} W</li>
+                <li><strong>${l.training_load}:</strong> ${training_load.toFixed(1)} TSS</li>
+                <li><strong>${l.vdot}:</strong> ${vdot.toFixed(1)}</li>
+                <li><strong>${l.PI}:</strong> ${PI.toFixed(1)} %</li>
+                <li><strong>${l.rps}:</strong> ${RPS.toFixed(1)} %</li>
+            `;
+        }
+        
+        function generateBlockVISummary(json_summary_data) {
+            const rows = json_summary_data.slice(1).filter(r => r[1]);
+            computeSummary(rows, 'historic-summary-list');
+        }
+        
+        function generateBlockVIAYear(json_summary_data) {
+            const currentYear = new Date().getFullYear();
+            const rows = json_summary_data.slice(1).filter(r => {
+                const rawDate = r[0];
+                if (!rawDate) return false;
+
+                let year;
+
+                if (typeof rawDate === 'number') {
+                    // Excel serial date: 1 Jan 1900 = 1 → convertir a fecha real
+                    const excelEpoch = new Date(1899, 11, 30); // Excel bug: cuenta desde 30/12/1899
+                    const date = new Date(excelEpoch.getTime() + rawDate * 86400000);
+                    year = date.getFullYear();
+                } else {
+                    const date = new Date(rawDate);
+                    if (isNaN(date.getTime())) return false; // fecha inválida
+                    year = date.getFullYear();
+                }
+
+                return year === currentYear;
+            });
+
+            computeSummary(rows, 'annual-summary-list');
+        }
+
+    </script>
+        
+
+    <!--Otras funciones -->
+    <script>
+
+        function  convertMinToMinSec(pace) {
+            const minutes = Math.floor(pace); // Parte entera = minutos
+            const seconds = Math.round((pace - minutes) * 60); // Parte decimal = segundos
+            return `${minutes}'${seconds < 10 ? '0' + seconds : seconds}"`; // Formato min'sec"
+        }
+
+        function convertMinToHourMinSec(minutes) {
+            const hours = Math.floor(minutes / 60); // Obtener las horas
+            const remainingMinutes = Math.floor(minutes % 60); // Obtener los minutos restantes
+            const seconds = Math.round((minutes % 1) * 60); // Obtener los segundos restantes
+
+            return `${hours}h${remainingMinutes}'${seconds}"`; // Formato: 0h27'30"
+        }
+
+        function excelDateToJSDate(serial) {
+            return new Date(1899, 11, 30 + serial).toLocaleDateString();
+        }
+
+        function recreate_chartid(chartId) {
+            const chartElement = document.getElementById(chartId);
+            if (chartElement) {
+                const parent = chartElement.parentNode;
+                const newCanvas = document.createElement('canvas');
+                newCanvas.id = chartId;
+                parent.replaceChild(newCanvas, chartElement);
+            }
+        }
+    
+    </script>
+
+</body>
+
+</html> 

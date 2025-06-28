@@ -1,0 +1,17 @@
+Para poder utilizar RunFlow se deben instalar las librerias del requirements.txt
+Para hacer funcionar RunFlow se debe tener los datos de las actividades en .zip(con un archivo .fit dentro).
+La forma mas facil es pidiendo a strava los datos de tu cuenta. (Ajustes/Cuenta/Descarga o elimna tu cuenta)
+Al recibir los datos por un mail se debe descargar el .zip que te entregan i cambiarle el nombre por "strava".
+El siguiente paso es abrir la carpeta "1. Procesador Strava (Python)" y poner dentro "strava.zip".
+Seguidamente se le da a ejecutar el código "strava_to_input.py". El código empezara a mostrar .fit y 
+una nueva carpeta que se llama "1.Input" para luego solo dejar esta ultima carpeta.
+Ya tenemos la carpeta de inputs de archivos que analizar. 
+El siguiente paso es pasar la carpeta "1.Input" a la carpeta "2. Backend (Python)" y 
+seguidamente ejecutar el codigo "RunFlow_processor.py", ojo aqui deberia haber la carpeta
+"1.Input" y los tres códigos de Python: "Functions_Database.py", "Functions_Individual.py", "RunFlow_processor.py".
+A no ser que ja se haya ejecutado el codigo previamente entonces tambien estaran las carpetas "2.Output" y "__pycache__"
+El procesado de datos puede tardar horas si hay muchos, se recomienda dejar trabajando y hacer otras cosas.
+
+Para volver a ejecutar el programa con nuevas actividades lo mas facil es descargar uno a uno los nuevos archivos .zip
+de cada actividad y ir añadiendolos en la carpeta de "1.Input" y vovler a ejecutar el codigo "RunFlow_processor.py",
+de esta manera se actualizara los datos generales y se creara el nuevo excel de la actividad nueva.
